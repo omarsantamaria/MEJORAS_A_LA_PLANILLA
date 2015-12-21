@@ -1,0 +1,326 @@
+USE [OutSourcing]
+GO
+
+/****** Object:  Trigger [tr_del_plcierre]    Script Date: 12/21/2015 09:40:40 ******/
+IF  EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'[dbo].[tr_del_plcierre]'))
+DROP TRIGGER [dbo].[tr_del_plcierre]
+GO
+
+/****** Object:  Trigger [tr_ins_plcierre]    Script Date: 12/21/2015 09:40:40 ******/
+IF  EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'[dbo].[tr_ins_plcierre]'))
+DROP TRIGGER [dbo].[tr_ins_plcierre]
+GO
+
+/****** Object:  Trigger [tr_upd_plcierre]    Script Date: 12/21/2015 09:40:40 ******/
+IF  EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'[dbo].[tr_upd_plcierre]'))
+DROP TRIGGER [dbo].[tr_upd_plcierre]
+GO
+
+USE [OutSourcing]
+GO
+
+/****** Object:  Trigger [dbo].[tr_del_plcierre]    Script Date: 12/21/2015 09:40:40 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+/*
+MEJORAS A LA PLANILLA
+TRIGGERS DE PLCIEERE
+*/
+ 
+
+
+ --drop trigger dbo.tr_ins_del_placreg
+  CREATE  TRIGGER [dbo].[tr_del_plcierre]
+  ON [dbo].[plcierre]
+  FOR DELETE
+  AS
+ /****************************************************
+ PROPOSITO:  
+ Eliminar   el registro de planilla ciere en el HISTORICO_NUEVO 
+ *****************************************************/
+  	 -- return 
+	delete HISTORICO_NUEVO from  deleted t 
+where    HISTORICO_NUEVO.flag = 1
+and t.cierre_g_financiero  = HISTORICO_NUEVO.grupo_financiero
+and t.cierre_empresa       = HISTORICO_NUEVO.empresa
+and t.cierre_empleado      = HISTORICO_NUEVO.empleado
+and t.cierre_tipo_cierre   = HISTORICO_NUEVO.tipo_cierre
+and t.cierre_concepto_apli = HISTORICO_NUEVO.concepto
+and t.cierre_fecha_hasta   = HISTORICO_NUEVO.fecha_hasta
+and t.cierre_linea         = HISTORICO_NUEVO.linea
+
+
+ 
+
+
+
+
+
+
+
+
+GO
+
+/****** Object:  Trigger [dbo].[tr_ins_plcierre]    Script Date: 12/21/2015 09:40:40 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+  CREATE TRIGGER [dbo].[tr_ins_plcierre]
+  ON [dbo].[plcierre]
+  FOR INSERT
+  AS
+ /****************************************************
+ PROPOSITO:  
+ Crear   el registro de planilla cerrada en el HISTORICO_NUEVO 
+ select top 5 * from plcierre where   6 = cierre_empresa  --cierre_empresa = 6
+ *****************************************************/
+ 
+--  return 
+
+insert into HISTORICO_NUEVO
+
+--select *  from inserted
+
+
+SELECT       
+ plcierre.cierre_g_financiero  as grupo_financiero,--  
+ plcierre.cierre_empresa       as empresa, --  
+ plcierre.cierre_empleado      as empleado,  
+ plcierre.cierre_tipo_plani    as tipo_planilla,  
+ plcierre.cierre_tipo_cierre   as tipo_cierre,  
+ '0'                           as origen,  
+ plcierre.cierre_linea         as linea,  
+   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,     
+         plcierre.cierre_concepto_apli as concepto,     
+         placopag.copa_descripcion     as descripcion_concepto,     
+         plcierre.cierre_horas_ordi    as horas_trabajadas,     
+          case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(  
+(SELECT  sum(  c102.cierre_monto_bruto )  
+    FROM        plcierre c102  
+   WHERE    
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and    
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and    
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and    
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND    
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND    
+         c102.cierre_concepto_apli = 102 )  )                
+),0))  
+   else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end) end as monto_bruto,     
+         case when plcierre.cierre_concepto_apli = 1 then - isnull( cierre_mto_descontado,0) else 0  end         as monto_descontado ,  
+         case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(  
+(  
+SELECT  sum(    
+         c102.cierre_monto_bruto )  
+    FROM    
+         --plcierre c102
+         inserted c102  
+   WHERE    
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and    
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and    
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and   
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND    
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND    
+         c102.cierre_concepto_apli = 102 )  )   
+),0))  
+ - isnull( cierre_mto_descontado,0) else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end)   end as monto_bruto_pagar,     
+         case when plcierre.cierre_concepto_apli in ( 1,71) or cierre_tipo_cierre != 1  then -  cierre_imp_renta else  0 end as imprenta,     
+  
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_educativo else  0 end as segeducativo,     
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_social    else  0 end as segsocial,     
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_otras_deducc  else  0 end as acreedores,     
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then   cierre_neto_paga     else  0 end as Neto,     
+         plcierre.cierre_fecha_desde as  fecha_desde,     
+         plcierre.cierre_fecha_hasta as  fecha_hasta,     
+         plaestad.esta_estado        as  estado,     
+         plaestad.esta_descripcion   as  descripcion_estado,     
+         plmemple.empl_salario       as  salario_mensual,     
+         plmemple.empl_rata_hora     as rata_por_hora,     
+         plmemple.empl_jornada       as jornada_semanal,     
+         plmemple.empl_horas_diarias as horas_por_dia,  
+         '1'                         as FLAG   ---columna control  FLAG=1 indica que son de planillas cerradas  
+  
+     FROM inserted plcierre,      
+         placopag,     
+         plmemple,     
+         plaestad    
+   WHERE ( plcierre.cierre_g_financiero = placopag.copa_g_financiero ) and    
+         ( plcierre.cierre_empresa = placopag.copa_empresa ) and    
+         ( plcierre.cierre_concepto_apli = placopag.copa_concepto_pago ) and   
+          
+         ( plcierre.cierre_g_financiero = plmemple.empl_g_financiero ) and    
+         ( plcierre.cierre_empresa = plmemple.empl_empresa ) and    
+         ( plcierre.cierre_empleado = plmemple.empl_empleado ) and   
+          
+         ( plmemple.empl_estado = plaestad.esta_estado ) 
+         --and   ( ( plcierre.cierre_empresa = @Empresa )  
+    AND  ( plmemple.empl_estado not in ('2','4') --)   
+  
+)   -- and   
+  
+ --plcierre.cierre_linea = @linea  
+         
+ORDER BY plcierre.cierre_g_financiero ASC,     
+         plcierre.cierre_empresa ASC,     
+         plcierre.cierre_empleado ASC,        
+         cierre_fecha_hasta asc ,  
+   cierre_tipo_cierre asc,   
+   cierre_fecha_desde asc ,  
+         plcierre.cierre_concepto_apli ASC 
+ 
+
+
+
+
+
+
+GO
+
+/****** Object:  Trigger [dbo].[tr_upd_plcierre]    Script Date: 12/21/2015 09:40:40 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+ 
+  CREATE  TRIGGER [dbo].[tr_upd_plcierre]
+  ON [dbo].[plcierre]
+  AFTER UPDATE
+  AS
+ /****************************************************
+ PROPOSITO:  
+ Actualizar   el registro de planilla cierre en el HISTORICO_NUEVO 
+ *****************************************************/
+set nocount on
+
+ 		  	 
+-- return 
+delete HISTORICO_NUEVO from  deleted t 
+		where    HISTORICO_NUEVO.flag = 1
+		and t.cierre_g_financiero  = HISTORICO_NUEVO.grupo_financiero
+		and t.cierre_empresa       = HISTORICO_NUEVO.empresa
+		and t.cierre_empleado      = HISTORICO_NUEVO.empleado
+		and t.cierre_tipo_cierre   = HISTORICO_NUEVO.tipo_cierre
+		and t.cierre_concepto_apli = HISTORICO_NUEVO.concepto
+		and t.cierre_fecha_hasta   = HISTORICO_NUEVO.fecha_hasta
+		and t.cierre_linea         = HISTORICO_NUEVO.linea
+
+
+insert into HISTORICO_NUEVO
+SELECT     
+ plcierre.cierre_g_financiero  as grupo_financiero,--
+ plcierre.cierre_empresa       as empresa, --
+ plcierre.cierre_empleado      as empleado,
+ plcierre.cierre_tipo_plani    as tipo_planilla,
+ plcierre.cierre_tipo_cierre   as tipo_cierre,
+ '0'                           as origen,
+ plcierre.cierre_linea         as linea,
+ 
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         plcierre.cierre_concepto_apli as concepto,   
+         placopag.copa_descripcion     as descripcion_concepto,   
+         plcierre.cierre_horas_ordi    as horas_trabajadas,   
+          case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(SELECT  sum(  c102.cierre_monto_bruto )
+    FROM        plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and  
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  )              
+),0))
+   else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end) end as monto_bruto,   
+         case when plcierre.cierre_concepto_apli = 1 then - isnull( cierre_mto_descontado,0) else 0  end         as monto_descontado ,
+         case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(
+SELECT  sum(  
+         c102.cierre_monto_bruto )
+    FROM  
+         plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and 
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  ) 
+),0))
+ - isnull( cierre_mto_descontado,0) else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end)   end as monto_bruto_pagar,   
+         case when plcierre.cierre_concepto_apli in ( 1,71) or cierre_tipo_cierre != 1  then -  cierre_imp_renta else  0 end as imprenta,   
+
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_educativo else  0 end as segeducativo,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_social    else  0 end as segsocial,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_otras_deducc  else  0 end as acreedores,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then   cierre_neto_paga     else  0 end as Neto,   
+         plcierre.cierre_fecha_desde as  fecha_desde,   
+         plcierre.cierre_fecha_hasta as  fecha_hasta,   
+         plaestad.esta_estado        as  estado,   
+         plaestad.esta_descripcion   as  descripcion_estado,   
+         plmemple.empl_salario       as  salario_mensual,   
+         plmemple.empl_rata_hora     as rata_por_hora,   
+         plmemple.empl_jornada       as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia,
+         '1'                         as FLAG     ---columna control  FLAG=1 indica que son de planillas cerradas
+
+     FROM  inserted  plcierre,
+--         plcierre,    
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( plcierre.cierre_g_financiero  = placopag.copa_g_financiero ) and    
+         ( plcierre.cierre_empresa       = placopag.copa_empresa ) and  
+         ( plcierre.cierre_concepto_apli = placopag.copa_concepto_pago ) and  
+         ( plcierre.cierre_g_financiero  = plmemple.empl_g_financiero ) and  
+         ( plcierre.cierre_empresa       = plmemple.empl_empresa ) and  
+         ( plcierre.cierre_empleado      = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado          = plaestad.esta_estado ) --and   ( ( plcierre.cierre_empresa = @Empresa )
+    AND  ( plmemple.empl_estado not in ('2','4') --) 
+
+)    
+       
+--ORDER BY plcierre.cierre_g_financiero ASC,   
+--         plcierre.cierre_empresa ASC,   
+--         plcierre.cierre_empleado ASC,   		 
+--         cierre_fecha_hasta asc ,
+--			cierre_tipo_cierre asc, 
+--			cierre_fecha_desde asc ,
+--         plcierre.cierre_concepto_apli ASC   
+         
+         
+
+
+
+
+
+
+
+GO
+
+
