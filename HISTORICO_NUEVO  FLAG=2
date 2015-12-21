@@ -1,0 +1,580 @@
+/*
+
+GENERAR FLAG=2
+select * from historico_nuevo where flag = 2 
+*/
+
+drop table #t ; 
+
+drop table #ttt ; 
+drop table #renta ; 
+drop table #salario ; 
+
+drop table #salariobo ; 
+
+SELECT empl_empresa as  empresa ,  empl_empleado as empleado,   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         empl_fecha_ingreso as fecha_ingreso ,
+		 para_anno_fiscal_ini, 
+         plaestad.esta_estado as estado,   
+         plaestad.esta_descripcion descripcion_estado,   
+         plmemple.empl_salario as salario_mensual,   
+         plmemple.empl_rata_hora as rata_por_hora,   
+         plmemple.empl_jornada as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia , 
+	     plmemple.empl_salario * 13   as salario_anualizado
+into #t
+    FROM 
+         
+         plmemple,   
+         plaestad  , dbo.plmparam
+   WHERE 
+         ( plmemple.empl_estado = plaestad.esta_estado ) and  
+         ( ( empl_empresa = 6  ) AND  
+         ( plmemple.empl_estado not in ('2','4') ) )     and 
+           empl_g_financiero = para_g_financiero and 
+           empl_empresa = para_empresa and 
+           para_anno_fiscal_ini <=  empl_fecha_ingreso and 
+           empl_fecha_ingreso <= para_anno_fiscal_fin
+       
+ORDER BY empl_empresa, empl_empleado ; 
+
+
+
+select empresa, empleado, nombre, fecha_ingreso,para_anno_fiscal_ini,  salario_mensual,   salario_anualizado,
+isnull(( select max(rent_base) from plarenta where rent_de <= salario_anualizado and rent_hasta >= salario_anualizado ),0) as base_renta  , 
+isnull(( select max(rent_porcentaje) from plarenta where rent_de <= salario_anualizado and rent_hasta >= salario_anualizado ),0) as porc_renta  , 
+isnull(( select max(rent_de) from plarenta where rent_de <= salario_anualizado and rent_hasta >= salario_anualizado ),0) as base_salario  , 
+round(((salario_anualizado - isnull(( select max(rent_de) from plarenta where rent_de <= salario_anualizado and rent_hasta >= salario_anualizado ),0) ) * 
+isnull(( select max(rent_porcentaje / 100 ) from plarenta where rent_de <= salario_anualizado and rent_hasta >= salario_anualizado ),0) )  +
+isnull(( select max(rent_base) from plarenta where rent_de <= salario_anualizado and rent_hasta >= salario_anualizado ),0),2) as renta_anual_base,
+salario_mensual * 1.34 as proyectado
+into #ttt   from #t
+ ;
+
+
+
+select empresa, empleado, nombre, fecha_ingreso,para_anno_fiscal_ini,  salario_mensual,   salario_anualizado,
+ base_renta  , 
+ porc_renta  , 
+ base_salario  , 
+ renta_anual_base,
+round( renta_anual_base / 13,2 ) rentamensual,
+round( 1.34 * (renta_anual_base / 13),2 ) rentaproyectada ,
+ proyectado
+
+
+into #renta
+
+from #ttt 
+ ;
+ 
+
+ delete from HISTORICO_NUEVO where linea < 0 
+
+
+
+insert into HISTORICO_NUEVO
+
+SELECT       
+ empl_g_financiero     ,
+ empl_empresa,
+ empl_empleado      ,  
+ empl_tipo_planilla ,  
+ 1,  
+ '0' ,           
+ - empl_empleado ,  
+   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,     
+         001 as concepto,     
+         placopag.copa_descripcion     as descripcion_concepto,     
+         0    as horas_trabajadas,     
+   (DATEDIFF (MM,  plmparam.para_anno_fiscal_ini , empl_fecha_ingreso) + 
+(case when DATEPART(DD,empl_fecha_ingreso) > 15 then 0.5 else 0.0 end ) ) 
+* empl_salario  as monto_bruto,     
+         0  as monto_descontado ,  
+ (DATEDIFF (MM,  plmparam.para_anno_fiscal_ini , empl_fecha_ingreso) + 
+(case when DATEPART(DD,empl_fecha_ingreso) > 15 then 0.5 else 0.0 end ) ) 
+* empl_salario  as monto_bruto_pagar,     
+      - ROUND( renta_anual_base * (( (DATEDIFF (MM,  plmparam.para_anno_fiscal_ini , empl_fecha_ingreso) + 
+(case when DATEPART(DD,empl_fecha_ingreso) > 15 then 0.5 else 0.0 end )  ) 
+* empl_salario ) / salario_anualizado ),2)  as imprenta,     
+  
+         0 as segeducativo,     
+         0 as segsocial,     
+         0 as acreedores,     
+         0 as Neto,     
+           DATEADD(mm, DATEDIFF(mm,0, dateadd(dd,-15,empl_fecha_ingreso)), 0) as  fecha_desde,     
+          dateadd(dd,14, DATEADD(mm, DATEDIFF(mm,0,dateadd(dd,-15,empl_fecha_ingreso)), 0)) as  fecha_hasta,     
+         plaestad.esta_estado        as  estado,     
+         plaestad.esta_descripcion   as  descripcion_estado,     
+         plmemple.empl_salario       as  salario_mensual,     
+         plmemple.empl_rata_hora     as rata_por_hora,     
+         plmemple.empl_jornada       as jornada_semanal,     
+         plmemple.empl_horas_diarias as horas_por_dia,  
+         '2'                         as FLAG   ---columna control  FLAG=2 indica que son registros de empleados nuevos
+  
+     FROM     
+         placopag,     
+         plmemple,     
+         plaestad  , plmparam  , #renta renta
+   WHERE ( empl_g_financiero = placopag.copa_g_financiero ) and    
+         ( empl_empresa = placopag.copa_empresa ) and    
+         
+         plmemple.empl_empresa = renta.empresa and 
+         plmemple.empl_empleado = renta.empleado and 
+         empl_empresa = 6 and 
+          
+         ( 1 = placopag.copa_concepto_pago ) and    
+             empl_g_financiero = plmparam.para_g_financiero and 
+           empl_empresa = plmparam.para_empresa and     
+           plmparam.para_anno_fiscal_ini <=  empl_fecha_ingreso and 
+           empl_fecha_ingreso <= plmparam.para_anno_fiscal_fin and 
+       
+         ( plmemple.empl_estado = plaestad.esta_estado ) --and   ( ( plcierre.cierre_empresa = @Empresa )  
+    AND  ( plmemple.empl_estado not in ('2','4') --)   
+  
+)   -- and   
+  
+ --plcierre.cierre_linea = @linea  
+         
+ORDER BY    plmemple.empl_empleado ASC 
+
+--- Proporcion X 
+
+
+select empl_empresa as sal_empresa, empl_empleado as sal_empleado ,
+sum  (((case empl_jornada when  48 then  104 when 36 then 78 else empl_jornada * 4.333 / 2 end )  - cierre_horas_ordi) * 
+( cierre_mto_ordinario / cierre_horas_ordi )) as sal_add into #salario from plcierre , plmemple where 
+plmemple.empl_empleado = plcierre.cierre_empleado and
+plmemple.empl_empresa = plcierre.cierre_empresa and
+plmemple.empl_g_financiero = plcierre.cierre_g_financiero and 
+plmemple.empl_fecha_ingreso >= plcierre.cierre_fecha_desde and 
+plmemple.empl_fecha_ingreso <= plcierre.cierre_fecha_hasta and 
+DATEPART(mm,plmemple.empl_fecha_ingreso) = DATEPART(mm, plcierre.cierre_fecha_hasta) and 
+DATEPART(mm,plmemple.empl_fecha_ingreso) = DATEPART(mm, plcierre.cierre_fecha_desde) and 
+DATEPART(dd,plmemple.empl_fecha_ingreso) not in (1,16) and 
+cierre_tipo_cierre = 1 and 
+cierre_fecha_hasta >= '01/01/2015'
+and 
+cierre_empresa = 6  group by empl_empresa, empl_empleado 
+
+
+
+
+insert into #salario
+select   empl_empresa as sal_empresa,
+ empl_empleado as sal_empleado ,
+ round(empl_salario / 2 ,2) - cierre_monto_bruto  as sal_add   from plcierre , plmemple where 
+plmemple.empl_empleado = plcierre.cierre_empleado and
+plmemple.empl_empresa = plcierre.cierre_empresa and
+plmemple.empl_g_financiero = plcierre.cierre_g_financiero and 
+dateadd(dd,0,plmemple.empl_fecha_ingreso) >= plcierre.cierre_fecha_desde and 
+dateadd(dd,0,plmemple.empl_fecha_ingreso) <= plcierre.cierre_fecha_hasta and 
+DATEPART(mm,dateadd(dd,0,plmemple.empl_fecha_ingreso) ) = DATEPART(mm, plcierre.cierre_fecha_hasta) and 
+DATEPART(mm,dateadd(dd,0,plmemple.empl_fecha_ingreso) ) = DATEPART(mm, plcierre.cierre_fecha_desde) and 
+DATEPART(dd,dateadd(dd,0,plmemple.empl_fecha_ingreso) ) not in (1,16) and 
+cierre_tipo_cierre in (1,6) and 
+cierre_concepto_apli = 74 and 
+cierre_fecha_hasta >= '01/01/2015'
+and 
+cierre_empresa = 6 and 
+
+ISNULL((select sum(1) from #salario where #salario.sal_empresa = plmemple.empl_empresa 
+and #salario.sal_empleado = plmemple.empl_empleado),0) = 0 
+
+insert into #salario
+select   empl_empresa as sal_empresa,
+ empl_empleado as sal_empleado ,
+ round(empl_salario / 2 ,2) - cierre_monto_bruto  as sal_add   from plcierre , plmemple where 
+plmemple.empl_empleado = plcierre.cierre_empleado and
+plmemple.empl_empresa = plcierre.cierre_empresa and
+plmemple.empl_g_financiero = plcierre.cierre_g_financiero and 
+dateadd(dd,15,plmemple.empl_fecha_ingreso) >= plcierre.cierre_fecha_desde and 
+dateadd(dd,15,plmemple.empl_fecha_ingreso) <= plcierre.cierre_fecha_hasta and 
+DATEPART(mm,dateadd(dd,15,plmemple.empl_fecha_ingreso) ) = DATEPART(mm, plcierre.cierre_fecha_hasta) and 
+DATEPART(mm,dateadd(dd,15,plmemple.empl_fecha_ingreso) ) = DATEPART(mm, plcierre.cierre_fecha_desde) and 
+DATEPART(dd,dateadd(dd,15,plmemple.empl_fecha_ingreso) ) not in (1,16) and 
+cierre_tipo_cierre in (1,16) and 
+cierre_concepto_apli = 74 and 
+cierre_fecha_hasta >= '01/01/2015'
+and 
+cierre_empresa = 6 and 
+
+ISNULL((select sum(1) from #salario where #salario.sal_empresa = plmemple.empl_empresa 
+and #salario.sal_empleado = plmemple.empl_empleado),0) = 0 
+
+
+ 
+insert into #salario
+select   empl_empresa as sal_empresa,
+ empl_empleado as sal_empleado ,
+ round(empl_salario / 2 ,2) - cierre_monto_bruto  as sal_add   from plcierre , plmemple where 
+plmemple.empl_empleado = plcierre.cierre_empleado and
+plmemple.empl_empresa = plcierre.cierre_empresa and
+plmemple.empl_g_financiero = plcierre.cierre_g_financiero and 
+dateadd(dd,30,plmemple.empl_fecha_ingreso) >= plcierre.cierre_fecha_desde and 
+dateadd(dd,30,plmemple.empl_fecha_ingreso) <= plcierre.cierre_fecha_hasta and 
+DATEPART(mm,dateadd(dd,30,plmemple.empl_fecha_ingreso) ) = DATEPART(mm, plcierre.cierre_fecha_hasta) and 
+DATEPART(mm,dateadd(dd,30,plmemple.empl_fecha_ingreso) ) = DATEPART(mm, plcierre.cierre_fecha_desde) and 
+DATEPART(dd,dateadd(dd,30,plmemple.empl_fecha_ingreso) ) not in (1,16) and 
+cierre_tipo_cierre in (1,16) and 
+cierre_concepto_apli = 74 and 
+cierre_fecha_hasta >= '01/01/2015'
+and 
+cierre_empresa = 6 and 
+
+ISNULL((select sum(1) from #salario where #salario.sal_empresa = plmemple.empl_empresa 
+and #salario.sal_empleado = plmemple.empl_empleado),0) = 0 
+
+
+ 
+
+
+
+insert into HISTORICO_NUEVO
+
+SELECT       
+ empl_g_financiero     ,
+ empl_empresa,
+ empl_empleado      ,  
+ empl_tipo_planilla ,  
+ 1,  
+ '0' ,           
+ - (9000 + empl_empleado ) ,  
+   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,     
+         001 as concepto,     
+         placopag.copa_descripcion     as descripcion_concepto,     
+         0    as horas_trabajadas,  sal_add  as monto_bruto,     
+         0  as monto_descontado ,sal_add   as monto_bruto_pagar,     
+      - ROUND( renta_anual_base * (sal_add / salario_anualizado ),2)  as imprenta,     
+  
+         0 as segeducativo,     
+         0 as segsocial,     
+         0 as acreedores,     
+         0 as Neto,     
+           DATEADD(mm, DATEDIFF(mm,0, empl_fecha_ingreso), 0) as  fecha_desde,     
+          dateadd(dd,14, DATEADD(mm, DATEDIFF(mm,0,empl_fecha_ingreso), 0)) as  fecha_hasta,     
+         plaestad.esta_estado        as  estado,     
+         plaestad.esta_descripcion   as  descripcion_estado,     
+         plmemple.empl_salario       as  salario_mensual,     
+         plmemple.empl_rata_hora     as rata_por_hora,     
+         plmemple.empl_jornada       as jornada_semanal,     
+         plmemple.empl_horas_diarias as horas_por_dia,  
+         '2'                         as FLAG   ---columna control  FLAG=2 indica que son empleados nuevos  
+  
+     FROM     
+         placopag,     
+         plmemple,     
+         plaestad  , plmparam  , #renta renta, #salario salario
+   WHERE ( empl_g_financiero = placopag.copa_g_financiero ) and    
+         ( empl_empresa = placopag.copa_empresa ) 
+         and    
+           salario.sal_empresa = empl_empresa and 
+           salario.sal_empleado = empl_empleado and 
+           
+           
+         plmemple.empl_empresa = renta.empresa and 
+         plmemple.empl_empleado = renta.empleado and 
+         empl_empresa = 6 and 
+          
+         ( 1 = placopag.copa_concepto_pago ) and    
+             empl_g_financiero = plmparam.para_g_financiero and 
+           empl_empresa = plmparam.para_empresa and     
+           plmparam.para_anno_fiscal_ini <=  empl_fecha_ingreso and 
+           empl_fecha_ingreso <= plmparam.para_anno_fiscal_fin and 
+       
+         ( plmemple.empl_estado = plaestad.esta_estado ) --and   ( ( plcierre.cierre_empresa = @Empresa )  
+    AND  ( plmemple.empl_estado not in ('2','4') --)   
+  
+)   -- and   
+  
+ --plcierre.cierre_linea = @linea  
+         
+ORDER BY    plmemple.empl_empleado ASC 
+
+
+-- Fin de proporcion X
+
+--
+ 
+
+select empl_empresa as sal_empresa, empl_empleado as sal_empleado  , 
+round(empl_salario / 2,2) -  boni_mto_ordinario as sal_add  into #salariobo from plbonifi , plmemple where 
+plmemple.empl_empleado = plbonifi.boni_empleado and
+plmemple.empl_empresa = plbonifi.boni_empresa and
+plmemple.empl_g_financiero = plbonifi.boni_g_financiero   and 
+DATEPART(mm,plmemple.empl_fecha_ingreso) = DATEPART(mm, plbonifi.boni_fecha_hasta) and 
+DATEPART(mm,plmemple.empl_fecha_ingreso) = DATEPART(mm, plbonifi.boni_fecha_desde) and 
+DATEPART(dd,plmemple.empl_fecha_ingreso) not in (1,16) and 
+-- plbonifi.boni_tipo_cierre = 1 and 
+plbonifi.boni_fecha_hasta >= '01/01/2015'
+and 
+plbonifi.boni_empresa = 6   
+
+
+insert into HISTORICO_NUEVO
+
+SELECT       
+ empl_g_financiero     ,
+ empl_empresa,
+ empl_empleado      ,  
+ empl_tipo_planilla ,  
+ 1,  
+ '0' ,           
+ - (7000 + empl_empleado ) ,  
+   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,     
+         001 as concepto,     
+         placopag.copa_descripcion     as descripcion_concepto,     
+         0    as horas_trabajadas,  sal_add  as monto_bruto,     
+         0  as monto_descontado ,sal_add   as monto_bruto_pagar,     
+      - ROUND( renta_anual_base * (sal_add / salario_anualizado ),2)  as imprenta,     
+  
+         0 as segeducativo,     
+         0 as segsocial,     
+         0 as acreedores,     
+         0 as Neto,     
+           DATEADD(mm, DATEDIFF(mm,0, empl_fecha_ingreso), 0) as  fecha_desde,     
+          dateadd(dd,14, DATEADD(mm, DATEDIFF(mm,0,empl_fecha_ingreso), 0)) as  fecha_hasta,     
+         plaestad.esta_estado        as  estado,     
+         plaestad.esta_descripcion   as  descripcion_estado,     
+         plmemple.empl_salario       as  salario_mensual,     
+         plmemple.empl_rata_hora     as rata_por_hora,     
+         plmemple.empl_jornada       as jornada_semanal,     
+         plmemple.empl_horas_diarias as horas_por_dia,  
+         '2'                         as FLAG   ---columna control  FLAG=1 indica que son de planillas cerradas  
+  
+     FROM     
+         placopag,     
+         plmemple,     
+         plaestad  , plmparam  , #renta renta, #salariobo salario
+   WHERE ( empl_g_financiero = placopag.copa_g_financiero ) and    
+         ( empl_empresa = placopag.copa_empresa ) 
+         and    
+           salario.sal_empresa = empl_empresa and 
+           salario.sal_empleado = empl_empleado and 
+           
+           
+         plmemple.empl_empresa = renta.empresa and 
+         plmemple.empl_empleado = renta.empleado and 
+         empl_empresa = 6 and 
+          
+         ( 1 = placopag.copa_concepto_pago ) and    
+             empl_g_financiero = plmparam.para_g_financiero and 
+           empl_empresa = plmparam.para_empresa and     
+           plmparam.para_anno_fiscal_ini <=  empl_fecha_ingreso and 
+           empl_fecha_ingreso <= plmparam.para_anno_fiscal_fin and 
+       
+         ( plmemple.empl_estado = plaestad.esta_estado ) --and   ( ( plcierre.cierre_empresa = @Empresa )  
+    AND  ( plmemple.empl_estado not in ('2','4') --)   
+  
+)   -- and   
+  
+ --plcierre.cierre_linea = @linea  
+         
+ORDER BY    plmemple.empl_empleado ASC 
+--
+
+
+-- Inicio Prorcion 2014 
+
+
+drop table #saldecimo
+ 
+select cierre_empresa as sald_empresa , cierre_empleado as   sald_empleado , 
+cierre_mto_ordinario as mto_ordinario , min(cierre_fecha_hasta) as fecha , 
+ROW_NUMBER() OVER(ORDER BY cierre_empleado  )  as linea
+
+into #saldecimo
+
+from plcierre, plmemple where cierre_empresa = 6 and  
+plmemple.empl_empleado = plcierre.cierre_empleado and
+plmemple.empl_empresa = plcierre.cierre_empresa and
+plmemple.empl_g_financiero = plcierre.cierre_g_financiero and  cierre_fecha_hasta >= dateadd(dd,15,empl_fecha_ingreso) 
+and cierre_tipo_cierre = 1 and cierre_concepto_apli = 1 and cierre_horas_ordi > 60.00 and isnull(cierre_mto_ordinario,-855) != -855 and 
+empl_fecha_ingreso > '2015/01/01'
+group by cierre_empresa,cierre_empleado, cierre_mto_ordinario
+
+  delete from #saldecimo where mto_ordinario = 0 
+  
+  
+insert into   #saldecimo
+select empl_empresa as sald_empresa , empl_empleado as   sald_empleado , 
+round(empl_salario / 2 ,2) as mto_ordinario ,  (GETDATE()) as fecha , 
+ROW_NUMBER() OVER(ORDER BY empl_empleado  )  as linea 
+
+
+ 
+from   plmemple where empl_empresa = 6 and  empl_empleado > 510 and 
+   
+empl_fecha_ingreso > '2015/01/01'  and 
+
+ISNULL((select sum(1) from #saldecimo where #saldecimo.sald_empresa = plmemple.empl_empresa 
+and #saldecimo.sald_empleado = plmemple.empl_empleado),0) = 0 
+
+
+  
+--  select * from #saldecimo where sald_empleado = 316
+ 
+ 
+drop table   #saldecimoini
+
+select * into #saldecimoini from #saldecimo where linea = ISNULL((select min(sd.linea) from #saldecimo sd where
+   #saldecimo.sald_empleado  = sd.sald_empleado),0) 
+   
+
+
+insert into HISTORICO_NUEVO
+
+SELECT       
+ empl_g_financiero     ,
+ empl_empresa,
+ empl_empleado      ,  
+ empl_tipo_planilla ,  
+ 1,  
+ '0' ,           
+ - (8000 + empl_empleado ) ,  
+   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,     
+         001 as concepto,     
+         placopag.copa_descripcion     as descripcion_concepto,     
+         0    as horas_trabajadas,  salario.mto_ordinario  as monto_bruto,     
+         0  as monto_descontado ,salario.mto_ordinario   as monto_bruto_pagar,     
+      - ROUND( renta_anual_base * (salario.mto_ordinario / salario_anualizado ),2)  as imprenta,     
+  
+         0 as segeducativo,     
+         0 as segsocial,     
+         0 as acreedores,     
+         0 as Neto,     
+          '2014/12/16'  as  fecha_desde,     
+          '2014/12/31' as  fecha_hasta,     
+         plaestad.esta_estado        as  estado,     
+         plaestad.esta_descripcion   as  descripcion_estado,     
+         plmemple.empl_salario       as  salario_mensual,     
+         plmemple.empl_rata_hora     as rata_por_hora,     
+         plmemple.empl_jornada       as jornada_semanal,     
+         plmemple.empl_horas_diarias as horas_por_dia,  
+         '2'                         as FLAG   ---columna control  FLAG=1 indica que son de planillas cerradas  
+  
+     FROM     
+         placopag,     
+         plmemple,     
+         plaestad  , plmparam  , #renta renta, #saldecimoini salario
+   WHERE ( empl_g_financiero = placopag.copa_g_financiero ) and    
+         ( empl_empresa = placopag.copa_empresa ) 
+         and    
+           salario.sald_empresa = empl_empresa and 
+           salario.sald_empleado = empl_empleado and 
+           
+           
+         plmemple.empl_empresa = renta.empresa and 
+         plmemple.empl_empleado = renta.empleado and 
+         empl_empresa = 6 and 
+          
+         ( 1 = placopag.copa_concepto_pago ) and    
+             empl_g_financiero = plmparam.para_g_financiero and 
+           empl_empresa = plmparam.para_empresa and     
+           plmparam.para_anno_fiscal_ini <=  empl_fecha_ingreso and 
+           empl_fecha_ingreso <= plmparam.para_anno_fiscal_fin and 
+       
+         ( plmemple.empl_estado = plaestad.esta_estado ) --and   ( ( plcierre.cierre_empresa = @Empresa )  
+    AND  ( plmemple.empl_estado not in ('2','4') --)   
+  
+)   -- and   
+  
+ --plcierre.cierre_linea = @linea  
+         
+ORDER BY    plmemple.empl_empleado ASC 
+
+
+-- Fin de proporcion Xx
+
+drop table #decimo
+
+ select empresa, empleado, round(SUM(monto_bruto ) *   0.08333333 ,2) as decimo into #decimo from HISTORICO_NUEVO
+  WHERE  FLAG  = 2 and concepto != 68
+  
+  group by empresa, empleado
+  
+
+
+insert into HISTORICO_NUEVO
+
+SELECT       
+ empl_g_financiero     ,
+ empl_empresa,
+ empl_empleado      ,  
+ empl_tipo_planilla ,  
+ 1,  
+ '0' ,           
+ -( 10000 + empl_empleado) ,  
+   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,     
+         068 as concepto,     
+         placopag.copa_descripcion     as descripcion_concepto,     
+         0    as horas_trabajadas, decimo.decimo  as monto_bruto,     
+         0  as monto_descontado , decimo.decimo as monto_bruto_pagar,     
+      - ROUND( renta_anual_base * ( decimo.decimo / salario_anualizado ),2)  as imprenta,     
+  
+         0 as segeducativo,     
+         0 as segsocial,     
+         0 as acreedores,     
+         0 as Neto,     
+           DATEADD(mm, DATEDIFF(mm,0,empl_fecha_ingreso), 0) as  fecha_desde,     
+          dateadd(dd,14, DATEADD(mm, DATEDIFF(mm,0,empl_fecha_ingreso), 0)) as  fecha_hasta,     
+         plaestad.esta_estado        as  estado,     
+         plaestad.esta_descripcion   as  descripcion_estado,     
+         plmemple.empl_salario       as  salario_mensual,     
+         plmemple.empl_rata_hora     as rata_por_hora,     
+         plmemple.empl_jornada       as jornada_semanal,     
+         plmemple.empl_horas_diarias as horas_por_dia,  
+         '2'                         as FLAG   ---columna control  FLAG=1 indica que son de planillas cerradas  
+  
+     FROM     
+         placopag,     
+         plmemple,     
+         plaestad  , plmparam  , #renta renta , #decimo decimo
+   WHERE ( empl_g_financiero = placopag.copa_g_financiero ) and    
+         ( empl_empresa = placopag.copa_empresa ) and   
+          
+          empl_empresa = decimo.empresa and 
+          empl_empleado = decimo.empleado and 
+          
+           
+         plmemple.empl_empresa = renta.empresa and 
+         plmemple.empl_empleado = renta.empleado and 
+         empl_empresa = 6 and 
+          
+         ( 68 = placopag.copa_concepto_pago ) and    
+             empl_g_financiero = plmparam.para_g_financiero and 
+           empl_empresa = plmparam.para_empresa and     
+           plmparam.para_anno_fiscal_ini <=  empl_fecha_ingreso and 
+           empl_fecha_ingreso <= plmparam.para_anno_fiscal_fin and 
+       
+         ( plmemple.empl_estado = plaestad.esta_estado ) --and   ( ( plcierre.cierre_empresa = @Empresa )  
+    AND  ( plmemple.empl_estado not in ('2','4') --)   
+  
+)   -- and   
+  
+ --plcierre.cierre_linea = @linea  
+         
+ORDER BY    plmemple.empl_empleado ASC 
+
+
+
+ 
+
+
+update  HISTORICO_NUEVO  set segsocial  =  -  case when concepto = 68 then  round(monto_bruto_pagar  * 0.0725,2)  else round(monto_bruto_pagar  * 0.0975,2)  end , 
+							 segeducativo = - case when concepto = 68 then 0 else round(monto_bruto_pagar  * 0.0125,2)  end 
+                              where linea < 0 ;
+ 
+update  HISTORICO_NUEVO  set						 neto = monto_bruto_pagar + imprenta + segeducativo +  segsocial
+                              where linea < 0  ;
+ 
+ 
+ 
+ 
+ 
