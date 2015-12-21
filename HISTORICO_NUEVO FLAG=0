@@ -1,0 +1,70 @@
+/*
+GENERAR REGISTROS FLAG=0 para el historico_nuevo
+
+select * from historico_nuevo where flag= 0 --489
+delete  from historico_nuevo where flag= 0
+*/
+insert into HISTORICO_NUEVO
+ SELECT  
+ placreg.creg_g_financiero  as grupo_financiero,
+ placreg.creg_empresa       as empresa, 
+ placreg.creg_empleado      as empleado,
+ placreg.creg_tipo_planilla as tipo_planilla,
+ '0'                        as tipo_cierre,
+ placreg.creg_origen        as origen, 
+ placreg.creg_linea as linea,
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         placreg.creg_concepto         as concepto,   
+         placopag.copa_descripcion     as descripcion_concepto,   
+         placreg.creg_horas_ordinarias as horas_trabajadas,   
+/*         case when creg_concepto = 102 then creg_monto_bruto    else 0  end as Monto_Incapacidades, */  
+         case when creg_concepto = 1 then creg_mto_ordinario - isnull( ( SELECT sum( pc102.creg_monto_bruto  )
+    FROM placreg pc102 
+   WHERE ( pc102.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( pc102.creg_empresa = plmemple.empl_empresa ) and  
+         ( pc102.creg_empleado = plmemple.empl_empleado ) and  
+         ( pc102.creg_concepto = 102 ) ),0)   else ( case when creg_concepto = 102 then creg_monto_bruto else creg_monto_bruto end) end as monto_bruto,   
+         case when creg_concepto = 1 then - isnull( creg_sueldo_base_descontado,0) else 0  end as monto_descontado ,
+         case when creg_concepto = 1 then creg_mto_ordinario  - isnull( ( SELECT sum( pc102.creg_monto_bruto  )
+    FROM placreg pc102 
+   WHERE ( pc102.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( pc102.creg_empresa = plmemple.empl_empresa ) and  
+         ( pc102.creg_empleado = plmemple.empl_empleado ) and  
+         ( pc102.creg_concepto = 102 ) ),0)    - isnull( creg_sueldo_base_descontado,0) else ( case when creg_concepto = 102 then creg_monto_bruto else creg_monto_bruto end)   end as monto_bruto_pagar,   
+         case when creg_concepto = 1 then -  creg_imp_renta    else  0 end as imprenta,   
+         case when creg_concepto = 1 then - creg_seguro_educa  else  0 end as segeducativo,   
+         case when creg_concepto = 1 then - creg_seguro_social else  0 end as segsocial,   
+         case when creg_concepto = 1 then - creg_otras_deducc  else  0 end as acreedores,   
+         case when creg_concepto = 1 then  creg_monto_neto     else  0 end as Neto,   
+
+         placreg.creg_fecha_desde as fecha_desde,   
+         placreg.creg_fecha_hasta as fecha_hasta,   
+
+         plaestad.esta_estado        as estado,   
+         plaestad.esta_descripcion   as descripcion_estado,   
+         plmemple.empl_salario       as salario_mensual,   
+         plmemple.empl_rata_hora     as rata_por_hora,   
+         plmemple.empl_jornada       as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia 
+         ,'0' as FLAG
+    FROM  placreg,   
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( placreg.creg_g_financiero = placopag.copa_g_financiero ) and  
+         ( placreg.creg_empresa = placopag.copa_empresa ) and  
+         ( placreg.creg_concepto = placopag.copa_concepto_pago ) and  
+         ( placreg.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( placreg.creg_empresa = plmemple.empl_empresa ) and  
+         ( placreg.creg_empleado = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) and  
+         ( --( placreg.creg_linea = @linea  ) AND  
+         ( plmemple.empl_estado not in ('2','4') ) )   
+ORDER BY placreg.creg_g_financiero ASC,   
+         placreg.creg_empresa ASC,   
+         placreg.creg_empleado ASC,   
+         placreg.creg_concepto ASC   
+         
+ 
+
+
