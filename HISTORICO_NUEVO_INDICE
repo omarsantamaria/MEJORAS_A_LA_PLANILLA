@@ -1,0 +1,28 @@
+USE [OutSourcing]
+GO
+
+/****** Object:  Index [IX_HISTORICO_NUEVO]    Script Date: 12/18/2015 14:40:33 ******/
+IF  EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[HISTORICO_NUEVO]') AND name = N'IX_HISTORICO_NUEVO')
+DROP INDEX [IX_HISTORICO_NUEVO] ON [dbo].[HISTORICO_NUEVO] WITH ( ONLINE = OFF )
+GO
+
+USE [OutSourcing]
+GO
+
+/****** Object:  Index [IX_HISTORICO_NUEVO]    Script Date: 12/18/2015 14:40:33 *****
+select top 5 * from historico_nuevo
+*/
+CREATE NONCLUSTERED INDEX [IX_HISTORICO_NUEVO] ON [dbo].[HISTORICO_NUEVO] 
+(
+	[grupo_financiero] ASC,
+	[empresa] ASC,
+	[empleado] ASC,
+	[tipo_planilla] ASC,
+	[tipo_cierre] ASC,
+	[linea] ASC,
+	[fecha_desde] ASC,
+	[fecha_hasta] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON, FILLFACTOR = 90) ON [PRIMARY]
+GO
+
+
