@@ -1,0 +1,2497 @@
+USE [OutSourcing]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularDecimo]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spCalcularDecimo]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spCalcularDecimo]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularDecimoBK]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spCalcularDecimoBK]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spCalcularDecimoBK]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularFactores]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spCalcularFactores]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spCalcularFactores]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularRenta]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spCalcularRenta]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spCalcularRenta]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularRentaBK]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spCalcularRentaBK]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spCalcularRentaBK]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularRentaDecimoPendiente]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spCalcularRentaDecimoPendiente]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spCalcularRentaDecimoPendiente]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spHorasNoTrabPlanillaActual]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spHorasNoTrabPlanillaActual]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spHorasNoTrabPlanillaActual]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spInsHistEmple]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spInsHistEmple]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spInsHistEmple]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spInsSalariosPlanillaActual]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spInsSalariosPlanillaActual]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spInsSalariosPlanillaActual]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepAgnosHistorico]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepAgnosHistorico]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepAgnosHistorico]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepDescAcreed]    Script Date: 12/18/2015 11:42:26 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepDescAcreed]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepDescAcreed]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepEmpresas]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepEmpresas]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepEmpresas]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistAcreed]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepHistAcreed]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepHistAcreed]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistEmple]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepHistEmple]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepHistEmple]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistEmpleBK]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepHistEmpleBK]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepHistEmpleBK]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistVacaciones]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepHistVacaciones]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepHistVacaciones]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistVacNuevo]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepHistVacNuevo]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepHistVacNuevo]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepSalariosPlanillaActual]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepSalariosPlanillaActual]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepSalariosPlanillaActual]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepSalariosPlanillaActualBK]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spRepSalariosPlanillaActualBK]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spRepSalariosPlanillaActualBK]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spSelHistorico_Nuevo]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spSelHistorico_Nuevo]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spSelHistorico_Nuevo]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spSelUsuarios]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spSelUsuarios]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spSelUsuarios]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spUpdHistorico_Nuevo]    Script Date: 12/18/2015 11:42:27 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[spUpdHistorico_Nuevo]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[spUpdHistorico_Nuevo]
+GO
+
+USE [OutSourcing]
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularDecimo]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+ CREATE   proc [dbo].[spCalcularDecimo]
+ @inicio   date,
+ @fin      date,
+ @empresa  int=null,
+ @empleado int=null
+ --,@monto_bruto numeric(18,2)=null out
+ as  
+ /*
+ -- para el SP que calcula el decimo con planillas 
+ parametros      default
+ 
+ inicio          yyyy-mm-dd
+ fin             yyyy-mm-dd
+ empresa            null
+ empleado           null
+ 
+ exec [spCalcularDecimo] '2014-12-16','2015-12-15',6,   239     --1 norma     migdalia 323  274 abraham dario
+ exec [spCalcularDecimo] null, null , null, null
+ 
+ 
+ exec [spCalcularDecimo] '2015-01-15',	'2015-12-15,',6  
+ 
+ declare @monto_bruto numeric(18,2) = 0
+ exec [spCalcularDecimo] '2014-12-16','2015-12-15',6,   239, @monto_bruto
+ select @monto_bruto
+ 
+  select * from myDecimo  
+ */ 
+ set nocount on
+ -- para que el reporting pueda ver los campos 
+ if @inicio is null and @fin is null
+    GOTO REPORTING
+ ELSE
+    GOTO PROCEDIMIENTO 
+ 
+return
+REPORTING:
+select * from myDecimo 
+return 
+ 
+PROCEDIMIENTO:
+ if @inicio > @fin 
+ begin
+    select 'La fecha final debe ser mayor a la fecha inicial' as MSG
+    return
+ end
+ /*
+ modificacion dic.2015
+ excluir estos registros
+ */
+ ------------ drop table #Z
+ --select * from platidev where tide_tipo_devengado = 28
+--DIC. 10.2015 agregar manualmente el 102 ---- 
+ update platidev set tide_paga_decimotercero = 1 where tide_tipo_devengado = 28
+ 
+ select a.copa_concepto_pago, a.copa_tipo_devengado into #Z --, b.*  into #Z   
+from placopag a, platidev b where   copa_empresa = 6 
+and a.copa_tipo_devengado  = b.tide_tipo_devengado 
+and b.tide_paga_decimotercero =0 
+
+ 
+
+--select copa_concepto_pago, tide_paga_decimotercero from #Z   --  utililizar en la exclusion del reporte de xiii
+ 
+ --------
+  select EMPLEADO, nombre , EMPRESA     
+  ,SUM(isnull(monto_bruto_pagar,0))            as MONTO_BRUTO
+  ,SUM(isnull(monto_bruto_pagar,0))/12         as DECIMO_TOTAL
+  INTO #T1 -- drop table #T1 
+  from HISTORICO_NUEVO 
+   where   
+   fecha_hasta between       @inicio and @fin  --'2015-01-01'  and  '2015-08-31'  
+   and concepto NOT in (select copa_concepto_pago from #Z) 
+   and flag != 2 
+  group by empleado, nombre,empresa 
+    
+drop table #Z 
+    
+  /* 
+  SELECT 
+  select top 5 * from historico_nuevo where concepto != 68 and flag != 2 
+  */  
+--salario mensual--
+   alter table #T1 add SALARIO_BASE  NUMERIC(18,2)
+   update #T1 set SALARIO_BASE  = h.salario_mensual 
+   from historico_nuevo as h, #T1   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin 
+
+
+-- Total de XIII Pagado ---
+
+  select EMPLEADO, nombre , EMPRESA     
+  ,SUM(isnull(monto_bruto,0))            as DECIMO_TOTAL_PAGADO
+  INTO #F -- drop table #T1 
+  from HISTORICO_NUEVO 
+   where   
+   fecha_hasta between       @inicio and @fin  --'2015-01-01'  and  '2015-08-31'  
+   and concepto = 68 and flag != 2 
+  group by empleado, nombre,empresa 
+  
+  ----select a.* from #F a, #T1 b
+  ----where  a.empleado = b.empleado and a.empresa = b.empresa 
+  
+  --return 
+  
+	alter table  #T1 add DECIMO_TOTAL_PAGADO numeric(18,2)
+    update #T1 set DECIMO_TOTAL_PAGADO =    0	 
+	update #T1 set DECIMO_TOTAL_PAGADO = t.DECIMO_TOTAL_PAGADO 
+	from #T1  as h, #F    t 
+	where 
+	h.empleado = t.empleado and
+	h.empresa = t.empresa  
+	  
+	drop table #F 
+           
+-- Fecha de Ingreso del empleado --
+     select distinct    h.empleado, h.empresa,   
+  (select    e.empl_fecha_ingreso  from plmemple e where h.empleado = e.empl_empleado and h.empresa = e.empl_empresa
+  ) as fecha_ingreso into #k  from historico_nuevo h
+  , #T1 t
+   where 
+   h.empleado = t.empleado and
+   h.empresa = @empresa and 
+   h.fecha_desde  between     @inicio and @fin 
+   group by h.empleado,h.empresa
+   
+   --select * from #f return 
+  
+   alter table #T1 add FECHA_INGRESO  DATE
+		update #T1 set FECHA_INGRESO  =  f.fecha_ingreso 
+		from #k  as f, #T1   t 
+		where 
+		t.empleado = f.empleado and
+		t.empresa = f.empresa  
+    drop table #k  
+
+
+-- XIII a pagar 
+alter table #T1 add DECIMO_A_PAGAR Numeric(18,2)
+update #T1 set DECIMO_A_PAGAR = DECIMO_TOTAL - decimo_total_pagado  
+            
+   --agregar parametros opcionales--
+   declare @sql varchar(500)
+   set @sql = 'select * from #T1 where 1 = 1 '
+   if @empresa  is not null 
+      set @sql = @sql + ' and empresa = ' + CONVERT(varchar(4), @empresa)
+   else
+      set @sql = @sql + ' and empresa = 6 '
+  if @empleado  is not null 
+      set @sql = @sql + ' and empleado = ' + CONVERT(varchar(4), @empleado)
+     
+
+     exec(@sql + ' order by nombre') 
+    --drop table   myDecimo
+--   select top 1 * into myDEcimo from #T1 
+   drop table #T1 
+   return 
+   
+   
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularDecimoBK]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+ CREATE  proc [dbo].[spCalcularDecimoBK]
+ @inicio   date,
+ @fin      date,
+ @empresa  int=null,
+ @empleado int=null
+ as  
+ /*
+ -- para el SP que calcula el decimo con planillas 
+ parametros      default
+ 
+ inicio          yyyy-mm-dd
+ fin             yyyy-mm-dd
+ empresa            null
+ empleado           null
+ 
+ exec [spCalcularDecimo] '2014-12-16','2015-12-15',6,   239     --1 norma     migdalia 323  274 abraham dario
+ exec [spCalcularDecimo] null, null , null, null
+ 
+  select * from myDecimo  
+ */ 
+ set nocount on
+ -- para que el reporting pueda ver los campos 
+ if @inicio is null and @fin is null
+    GOTO REPORTING
+ ELSE
+    GOTO PROCEDIMIENTO 
+ 
+return
+REPORTING:
+select * from myDecimo 
+return 
+ 
+PROCEDIMIENTO:
+ if @inicio > @fin 
+ begin
+    select 'La fecha final debe ser mayor a la fecha inicial' as MSG
+    return
+ end
+  select EMPLEADO, nombre , EMPRESA     
+  ,SUM(isnull(monto_bruto,0))            as MONTO_BRUTO
+  ,SUM(isnull(monto_bruto,0))/12         as DECIMO_TOTAL
+  INTO #T -- drop table #T 
+  from HISTORICO_NUEVO 
+   where   
+   fecha_hasta between       @inicio and @fin  --'2015-01-01'  and  '2015-08-31'  
+   and concepto != 68 and flag != 2 
+  group by empleado, nombre,empresa 
+    
+    
+  /* 
+  SELECT 
+  select top 5 * from historico_nuevo where concepto != 68 and flag != 2 
+  */  
+--salario mensual--
+   alter table #T add SALARIO_BASE  NUMERIC(18,2)
+   update #T set SALARIO_BASE  = h.salario_mensual 
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin 
+
+
+-- Total de XIII Pagado ---
+
+  select EMPLEADO, nombre , EMPRESA     
+  ,SUM(isnull(monto_bruto,0))            as DECIMO_TOTAL_PAGADO
+  INTO #F -- drop table #T 
+  from HISTORICO_NUEVO 
+   where   
+   fecha_hasta between       @inicio and @fin  --'2015-01-01'  and  '2015-08-31'  
+   and concepto = 68 and flag != 2 
+  group by empleado, nombre,empresa 
+  
+  ----select a.* from #F a, #T b
+  ----where  a.empleado = b.empleado and a.empresa = b.empresa 
+  
+  --return 
+  
+	alter table  #T add DECIMO_TOTAL_PAGADO numeric(18,2)
+    update #T set DECIMO_TOTAL_PAGADO =    0	 
+	update #T set DECIMO_TOTAL_PAGADO = t.DECIMO_TOTAL_PAGADO 
+	from #T  as h, #F    t 
+	where 
+	h.empleado = t.empleado and
+	h.empresa = t.empresa  
+	  
+	drop table #F 
+           
+-- Fecha de Ingreso del empleado --
+     select distinct    h.empleado, h.empresa,   
+  (select    e.empl_fecha_ingreso  from plmemple e where h.empleado = e.empl_empleado and h.empresa = e.empl_empresa
+  ) as fecha_ingreso into #k  from historico_nuevo h
+  , #T t
+   where 
+   h.empleado = t.empleado and
+   h.empresa = @empresa and 
+   h.fecha_desde  between     @inicio and @fin 
+   group by h.empleado,h.empresa
+   
+   --select * from #f return 
+  
+   alter table #T add FECHA_INGRESO  DATE
+		update #T set FECHA_INGRESO  =  f.fecha_ingreso 
+		from #k  as f, #T   t 
+		where 
+		t.empleado = f.empleado and
+		t.empresa = f.empresa  
+    drop table #k  
+
+
+-- XIII a pagar 
+alter table #T add DECIMO_A_PAGAR Numeric(18,2)
+update #T set DECIMO_A_PAGAR = DECIMO_TOTAL - decimo_total_pagado  
+            
+   --agregar parametros opcionales--
+   declare @sql varchar(500)
+   set @sql = 'select * from #T where 1 = 1 '
+   if @empresa  is not null 
+      set @sql = @sql + ' and empresa = ' + CONVERT(varchar(4), @empresa)
+   else
+      set @sql = @sql + ' and empresa = 6 '
+  if @empleado  is not null 
+      set @sql = @sql + ' and empleado = ' + CONVERT(varchar(4), @empleado)
+     
+
+     exec(@sql + ' order by nombre') 
+    --drop table   myDecimo
+--   select top 1 * into myDEcimo from #T 
+   drop table #T 
+   return 
+   
+   
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularFactores]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE proc [dbo].[spCalcularFactores]
+@FechaCorteAnual date,
+@FechaFinalRenta date
+
+/*
+Propsito> Calcular los factores necesarios para aplicarlos al Ingreso Anualizado
+de la formula de proyeccion utilizada por el reporte
+Fecha>    Dic.2015
+
+parametros:
+@FechaCorteAnual>     Fecha final de agno .por default es 30-dic-YYYY  YYYY>  Agno actual
+@FechaFinalRenta      Fecha final para el calculo de renta
+Salida>
+Factores
+  A          Cantidad de quincenas faltantes basada en un a;o de 360 dias
+  B          Cantidad de XIII faltantes con respecto a la fecha de corte anual
+
+spCalcularFactores '2015-12-30','2015-08-15'
+*/
+
+as
+set nocount on 
+
+
+Declare @A  int  =0, @B numeric(5,4) = 0
+/*  Cantidad de 15nas faltantes  */
+--select @A = ABS( DATEDIFF(MONTH, @FechaFinalRenta, @FechaCorteAnual) * 30 + DAY(@FechaCorteAnual) - DAY(@FechaFinalRenta))/15
+
+
+select @A =  dbo.fnDateDiff360(@FechaCorteAnual,@FechaFinalRenta )/15
+
+/* Cantidad de xiii faltantes*/
+select @B = (@A - 1)/24.0000 
+select @A as A, @B as B  
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularRenta]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+ CREATE proc [dbo].[spCalcularRenta]
+ @inicio   date,
+ @fin      date,
+ @empresa  int=null,
+ @empleado int=null
+ as  
+ /*
+ -- para el SP que calcula la renta con planillas 
+ parametros      default
+ 
+ inicio          yyyy-mm-dd
+ fin             yyyy-mm-dd
+ empresa            null
+ empleado           null
+ 
+ exec spCalcularRenta '2015-01-01','2015-12-15',6,   59     --1 norma     migdalia 323  274 abraham dario
+ exec spCalcularRenta null, null , null, null
+ select top 5 * from historico_nuevo 
+ where empleado = 48 and empresa = 6 and fecha_desde  between     '2015-01-01' and '2015-12-15'
+ 
+ 
+ select    SUM( monto_descontado) as monto_desc from historico_nuevo 
+ where empleado = 48 and empresa = 6 and fecha_desde  between     '2015-01-01' and '2015-12-15'
+ 
+ select top 1 *, GETDATE() as  FECHA_INGRESO into mytable  from historico_nuevo   
+ select * from myTable  
+ */ 
+ set nocount on
+ -- para que el reporting pueda ver los campos 
+ if @inicio is null and @fin is null
+    GOTO REPORTING
+ ELSE
+    GOTO PROCEDIMIENTO 
+ 
+return
+REPORTING:
+select * from mytable 
+return 
+ 
+PROCEDIMIENTO:
+ if @inicio > @fin 
+ begin
+    select 'La fecha final debe ser mayor a la fecha inicial' as MSG
+    return
+ end
+  select EMPLEADO, nombre , EMPRESA     
+  ,SUM(isnull(horas_trabajadas,0))       as HORAS_TRABAJADAS
+  ,SUM(isnull(monto_bruto,0))            as MONTO_BRUTO
+  ,dbo.fnCalcularRenta( SUM(isnull(monto_bruto,0)),15,25) AS IMP_RENTA_NEW  
+  ,SUM(isnull(imprenta,0))                as IMPRENTA
+  ,SUM(isnull(neto,0))                    as NETO
+  ,SUM(isnull(segsocial,0))               as SEGURO_SOCIAL
+  ,SUM(isnull(segeducativo,0))            as SEGURO_EDUCATIVO
+  ,SUM(isnull(acreedores,0))               as ACREEDORES
+  INTO #T -- drop table #T 
+  from HISTORICO_NUEVO 
+   where   
+   fecha_hasta between       @inicio and @fin  --'2015-01-01'  and  '2015-08-31'  
+  group by empleado, nombre,empresa 
+    
+  /*
+  select  top 5  
+  (select    e.empl_fecha_ingreso  from plmemple e where h.empleado = e.empl_empleado and h.empresa = e.empl_empresa
+  ) as fecha_ingreso,
+  * from historico_nuevo h  
+  
+  
+  select  empl_fecha_ingreso,  * from plmemple where empl_fecha_ingreso is null
+  */  
+    
+   -- agregar columna de resultado --
+   alter table #T add ESTADO_DESC_RENTA VARCHAR(2)
+   
+   UPDATE #T SET ESTADO_DESC_RENTA = CASE WHEN (IMP_RENTA_NEW - IMPRENTA) > 0 THEN 'OK'
+                                          WHEN (IMP_RENTA_NEW - IMPRENTA) = 0 THEN '00'
+                                          WHEN (IMP_RENTA_NEW - IMPRENTA) < 0 THEN '01' END   
+/*
+columnas nuevas
+*/
+-- Faltantes y salario ajustado--
+select empleado, empresa,  SUM( monto_descontado) as faltantes  into #f 
+from historico_nuevo 
+ where   empresa = @empresa and fecha_desde  between     @inicio and @fin
+group by empleado, empresa 
+--select  h.empleado,h.empresa, SUM(h.monto_descontado) as faltantes 
+--into #f
+-- from historico_nuevo as h  , #T t
+--   where 
+--   h.empleado = t.empleado and
+--   h.empresa = @empresa and 
+--   h.fecha_desde  between     @inicio and @fin 
+--   group by h.empleado,h.empresa
+
+--select * from #f  order by    empleado return  
+---------------------//---------------------------------------
+
+   alter table #T add FALTANTES         NUMERIC(18,2)
+   alter table #T add SALARIO_AJUSTADO  NUMERIC(18,2)
+   update #T set FALTANTES  =  f.faltantes, SALARIO_AJUSTADO = isnull((t.MONTO_BRUTO + f.faltantes),0)
+     from #f as f, #T   t  
+   where 
+   t.empleado = f.empleado and
+   t.empresa = f.empresa  
+   
+   drop table #f  
+--select * from #t   order by  empresa,  empleado return  
+
+--salario mensual--
+   alter table #T add SALARIO_BASE  NUMERIC(18,2)
+   update #T set SALARIO_BASE  = h.salario_mensual 
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin 
+
+--salario anualizado   
+   alter table #T add SALARIO_ANUALIZADO  NUMERIC(18,2)
+   update #T set SALARIO_ANUALIZADO =  SALARIO_AJUSTADO  +   SALARIO_BASE * 1.33
+   from historico_nuevo as h, #T   t 
+  where 
+    h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+    h.fecha_desde  between       @inicio and @fin 
+
+--Renta Anual--
+   alter table #T add RENTA_ANUAL  NUMERIC(18,2)
+     update #T set RENTA_ANUAL = (select dbo.fnCalcularRenta(t.SALARIO_ANUALIZADO,15,25 )  )
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between @inicio and @fin
+
+    
+-- Renta ProRata---
+   alter table #T add RENTA_PRORATA  NUMERIC(18,2)
+   update #T set RENTA_PRORATA =   SALARIO_AJUSTADO*RENTA_ANUAL/SALARIO_ANUALIZADO  
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+    
+-- Renta al Corte---
+   alter table #T add RENTA_AL_CORTE  NUMERIC(18,2)
+   update #T set RENTA_AL_CORTE = ( select dbo.fnCalcularRenta( SALARIO_AJUSTADO,15,25) )
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+   
+-- Diferencia al Prorateo---
+   alter table #T add DIFF_AL_PRORATA  NUMERIC(18,2)
+   update #T set DIFF_AL_PRORATA = RENTA_PRORATA - t.IMPRENTA
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+
+
+-- Diferencia al Corte---
+   alter table #T add DIFF_AL_CORTE  NUMERIC(18,2)
+   update #T set DIFF_AL_CORTE = RENTA_AL_CORTE - t.IMPRENTA
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+
+
+-- Diferencia Prorata %---
+   alter table #T add DIFF_PRORATA  NUMERIC(18,2)
+   update #T set DIFF_PRORATA = (DIFF_AL_PRORATA / SALARIO_BASE )*100 
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+
+-- Fecha de Ingreso del empleado --
+     select distinct    h.empleado, h.empresa,   
+  (select    e.empl_fecha_ingreso  from plmemple e where h.empleado = e.empl_empleado and h.empresa = e.empl_empresa
+  ) as fecha_ingreso into #k  from historico_nuevo h
+  , #T t
+   where 
+   h.empleado = t.empleado and
+   h.empresa = @empresa and 
+   h.fecha_desde  between     @inicio and @fin 
+   group by h.empleado,h.empresa
+   
+   --select * from #f return 
+  
+   alter table #T add FECHA_INGRESO  DATE
+		update #T set FECHA_INGRESO  =  f.fecha_ingreso 
+		from #k  as f, #T   t 
+		where 
+		t.empleado = f.empleado and
+		t.empresa = f.empresa  
+    drop table #k  
+                               
+   --agregar parametros opcionales--
+   declare @sql varchar(500)
+   set @sql = 'select * from #T where 1 = 1 '
+   if @empresa  is not null 
+      set @sql = @sql + ' and empresa = ' + CONVERT(varchar(4), @empresa)
+   else
+      set @sql = @sql + ' and empresa = 6 '
+  if @empleado  is not null 
+      set @sql = @sql + ' and empleado = ' + CONVERT(varchar(4), @empleado)
+     
+     exec(@sql + ' order by DIFF_AL_PRORATA') 
+
+--drop table   myTable
+ --   select top 1 * into myTable from #T 
+   drop table #T 
+   return 
+   
+   
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularRentaBK]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+ CREATE proc [dbo].[spCalcularRentaBK]
+ @inicio   date,
+ @fin      date,
+ @empresa  int=null,
+ @empleado int=null
+ as  
+ /*
+ -- para el SP que calcula la renta con planillas 
+ parametros      default
+ 
+ inicio          yyyy-mm-dd
+ fin             yyyy-mm-dd
+ empresa            null
+ empleado           null
+ 
+ exec spCalcularRenta '2015-01-01','2015-12-15',6,   48     --1 norma     migdalia 323  274 abraham dario
+ exec spCalcularRenta null, null , null, null
+ select  * from historico_nuevo 
+ where empleado = 48 and empresa = 6 and fecha_desde  between     '2015-01-01' and '2015-12-15'
+ 
+ 
+ select    SUM( monto_descontado) as monto_desc from historico_nuevo 
+ where empleado = 48 and empresa = 6 and fecha_desde  between     '2015-01-01' and '2015-12-15'
+ 
+ select top 1 *, GETDATE() as  FECHA_INGRESO into mytable  from historico_nuevo   
+ select * from myTable  
+ */ 
+ set nocount on
+ -- para que el reporting pueda ver los campos 
+ if @inicio is null and @fin is null
+    GOTO REPORTING
+ ELSE
+    GOTO PROCEDIMIENTO 
+ 
+return
+REPORTING:
+select * from mytable 
+return 
+ 
+PROCEDIMIENTO:
+ if @inicio > @fin 
+ begin
+    select 'La fecha final debe ser mayor a la fecha inicial' as MSG
+    return
+ end
+  select EMPLEADO, nombre , EMPRESA     
+  ,SUM(isnull(horas_trabajadas,0))       as HORAS_TRABAJADAS
+  ,SUM(isnull(monto_bruto,0))            as MONTO_BRUTO
+  ,dbo.fnCalcularRenta( SUM(isnull(monto_bruto,0)),15,25) AS IMP_RENTA_NEW  
+  ,SUM(isnull(imprenta,0))                as IMPRENTA
+  ,SUM(isnull(neto,0))                    as NETO
+  ,SUM(isnull(segsocial,0))               as SEGURO_SOCIAL
+  ,SUM(isnull(segeducativo,0))            as SEGURO_EDUCATIVO
+  ,SUM(isnull(acreedores,0))               as ACREEDORES
+  INTO #T -- drop table #T 
+  from HISTORICO_NUEVO 
+   where   
+   fecha_hasta between       @inicio and @fin  --'2015-01-01'  and  '2015-08-31'  
+  group by empleado, nombre,empresa 
+    
+  /*
+  select  top 5  
+  (select    e.empl_fecha_ingreso  from plmemple e where h.empleado = e.empl_empleado and h.empresa = e.empl_empresa
+  ) as fecha_ingreso,
+  * from historico_nuevo h  
+  
+  
+  select  empl_fecha_ingreso,  * from plmemple where empl_fecha_ingreso is null
+  */  
+    
+   -- agregar columna de resultado --
+   alter table #T add ESTADO_DESC_RENTA VARCHAR(2)
+   
+   UPDATE #T SET ESTADO_DESC_RENTA = CASE WHEN (IMP_RENTA_NEW - IMPRENTA) > 0 THEN 'OK'
+                                          WHEN (IMP_RENTA_NEW - IMPRENTA) = 0 THEN '00'
+                                          WHEN (IMP_RENTA_NEW - IMPRENTA) < 0 THEN '01' END   
+/*
+columnas nuevas
+*/
+-- Faltantes y salario ajustado--
+select  h.empleado,h.empresa, SUM(h.monto_descontado) as faltantes 
+into #f
+ from historico_nuevo as h  , #T t
+   where 
+   h.empleado = t.empleado and
+   h.empresa = @empresa and 
+   h.fecha_desde  between     @inicio and @fin 
+   group by h.empleado,h.empresa
+
+select * from #f  order by  empresa,  empleado return  
+
+   alter table #T add FALTANTES         NUMERIC(18,2)
+   alter table #T add SALARIO_AJUSTADO  NUMERIC(18,2)
+   update #T set FALTANTES  =  f.faltantes, SALARIO_AJUSTADO = isnull((t.MONTO_BRUTO + f.faltantes),0)
+     from #f as f, #T   t  
+   where 
+   t.empleado = f.empleado and
+   t.empresa = f.empresa  
+   
+   drop table #f  
+--select * from #t   order by  empresa,  empleado return  
+
+--salario mensual--
+   alter table #T add SALARIO_BASE  NUMERIC(18,2)
+   update #T set SALARIO_BASE  = h.salario_mensual 
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin 
+
+--salario anualizado   
+   alter table #T add SALARIO_ANUALIZADO  NUMERIC(18,2)
+   update #T set SALARIO_ANUALIZADO =  SALARIO_AJUSTADO  +   SALARIO_BASE * 1.33
+   from historico_nuevo as h, #T   t 
+  where 
+    h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+    h.fecha_desde  between       @inicio and @fin 
+
+--Renta Anual--
+   alter table #T add RENTA_ANUAL  NUMERIC(18,2)
+     update #T set RENTA_ANUAL = (select dbo.fnCalcularRenta(t.SALARIO_ANUALIZADO,15,25 )  )
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between @inicio and @fin
+
+    
+-- Renta ProRata---
+   alter table #T add RENTA_PRORATA  NUMERIC(18,2)
+   update #T set RENTA_PRORATA =   SALARIO_AJUSTADO*RENTA_ANUAL/SALARIO_ANUALIZADO  
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+    
+-- Renta al Corte---
+   alter table #T add RENTA_AL_CORTE  NUMERIC(18,2)
+   update #T set RENTA_AL_CORTE = ( select dbo.fnCalcularRenta( SALARIO_AJUSTADO,15,25) )
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+   
+-- Diferencia al Prorateo---
+   alter table #T add DIFF_AL_PRORATA  NUMERIC(18,2)
+   update #T set DIFF_AL_PRORATA = RENTA_PRORATA - t.IMPRENTA
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+
+
+-- Diferencia al Corte---
+   alter table #T add DIFF_AL_CORTE  NUMERIC(18,2)
+   update #T set DIFF_AL_CORTE = RENTA_AL_CORTE - t.IMPRENTA
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+
+
+-- Diferencia Prorata %---
+   alter table #T add DIFF_PRORATA  NUMERIC(18,2)
+   update #T set DIFF_PRORATA = (DIFF_AL_PRORATA / SALARIO_BASE )*100 
+   from historico_nuevo as h, #T   t 
+  where 
+   h.empleado = t.empleado and
+   h.empresa = t.empresa and 
+   h.fecha_desde  between       @inicio and @fin
+
+-- Fecha de Ingreso del empleado --
+     select distinct    h.empleado, h.empresa,   
+  (select    e.empl_fecha_ingreso  from plmemple e where h.empleado = e.empl_empleado and h.empresa = e.empl_empresa
+  ) as fecha_ingreso into #k  from historico_nuevo h
+  , #T t
+   where 
+   h.empleado = t.empleado and
+   h.empresa = @empresa and 
+   h.fecha_desde  between     @inicio and @fin 
+   group by h.empleado,h.empresa
+   
+   --select * from #f return 
+  
+   alter table #T add FECHA_INGRESO  DATE
+		update #T set FECHA_INGRESO  =  f.fecha_ingreso 
+		from #k  as f, #T   t 
+		where 
+		t.empleado = f.empleado and
+		t.empresa = f.empresa  
+    drop table #k  
+                               
+   --agregar parametros opcionales--
+   declare @sql varchar(500)
+   set @sql = 'select * from #T where 1 = 1 '
+   if @empresa  is not null 
+      set @sql = @sql + ' and empresa = ' + CONVERT(varchar(4), @empresa)
+   else
+      set @sql = @sql + ' and empresa = 6 '
+  if @empleado  is not null 
+      set @sql = @sql + ' and empleado = ' + CONVERT(varchar(4), @empleado)
+     
+     exec(@sql + ' order by DIFF_AL_PRORATA') 
+
+--drop table   myTable
+ --   select top 1 * into myTable from #T 
+   drop table #T 
+   return 
+   
+   
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spCalcularRentaDecimoPendiente]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE proc [dbo].[spCalcularRentaDecimoPendiente]
+@inicio date,
+@fin    date,
+@iniciopend date,
+@finpend    date,
+ @empresa  int=null,
+ @empleado int=null
+ as
+ /*===================================================
+ Propósito:  Calcular la renta y el xiii por pagar para mostrarlo
+             en el reporte Calculo_Renta_Nuevo_XIII_Pendiente
+ Fecha    :  Dic. 2015
+ 
+ Parámetros      default
+ inicio          yyyy-mm-dd    fecha inicial para el cálculo de renta
+ fin             yyyy-mm-dd    fecha final   para el cálculo de renta
+ iniciopend      yyyy-mm-dd    fecha inicial para el cálculo de XIII por pagar
+ finpend         yyyy-mm-dd    fecha final   para el cálculo de XIII por pagar 
+ empresa            null       código de la empresa
+ empleado           null       número del empleado
+ 
+ exec spCalcularRentaDecimoPendiente '2015-01-01','2015-12-31','2014-12-15','2015-08-31',6,   48     --1 norma     migdalia 323  274 abraham dario
+ exec spCalcularRentaDecimoPendiente null, null , null, null
+ ===================================================*/ 
+
+
+--temporal para grabar la  información de renta nuevo
+ select top 0 * into #myTable from myTable  
+
+-- temporal para grabar la  información de xiii a pagar
+ select top 0 * into #myDEcimo from myDEcimo 
+ 
+-- insertar la  información de renta nuevo en la temporal -- 
+ insert into #myTable
+  exec spCalcularRenta @inicio,@fin,@empresa,@empleado 
+ 
+ --insertar la  información de xiii a pagar en la temporal -- 
+ insert into #myDEcimo
+ exec [spCalcularDecimo] @iniciopend,@finpend,@empresa, @empleado
+  
+ 
+ --agregar la columa para el XIII por pagar --
+ alter table #myTable add DECIMO_A_PAGAR  Numeric(18,2)
+ --select * from #myTable  
+
+--actualizar  DECIMO_A_PAGAR --
+ update a set DECIMO_A_PAGAR = b.DECIMO_A_PAGAR
+ from #myTable a,  #myDEcimo b
+ where a.empleado = b.empleado and a.empresa = b.empresa 
+ 
+--datos actualizados para mostrar en el reporte--
+select * from #myTable order by  nombre -- DIFF_AL_PRORATA 
+ --select * from #myDEcimo
+ 
+ drop table #myDEcimo
+ drop table #myTable
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spHorasNoTrabPlanillaActual]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+CREATE proc  [dbo].[spHorasNoTrabPlanillaActual]
+@Empresa       int
+as 
+/*
+Horas no trabajadas Planilla Actual 
+Parametro  Empresa
+
+spHorasNoTrabPlanillaActual 6
+*/
+
+ 
+  SELECT plmemple.empl_empleado, 
+      isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,     
+         plcmovim.movim_concepto_pago,   
+         placonhf.conc_descripcion,   
+
+      
+         plcmovim.movim_horas,   
+case when  plcmovim.movim_concepto_pago = 9 then   plcmovim.movim_monto_bruto   else 0 end as Monto_Incapacidades , 
+case when  plcmovim.movim_concepto_pago not in ( 9 ) then   plcmovim.movim_monto_bruto   else 0 end as Monto
+    FROM plmemple,   
+         plcmovim,   
+         placonhf  
+   WHERE ( plmemple.empl_g_financiero = plcmovim.movim_g_financiero ) and  
+         ( plmemple.empl_empresa = plcmovim.movim_empresa ) and  
+         ( plmemple.empl_empleado = plcmovim.movim_empleado ) and  
+         ( placonhf.conc_concepto = plcmovim.movim_concepto_pago ) and  
+         ( ( plmemple.empl_empresa = @Empresa ) AND  
+         ( plmemple.empl_estado not in ('2','4') ) ) AND  
+         plcmovim.movim_tipo_proc = 5    
+
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spInsHistEmple]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+
+CREATE proc  [dbo].[spInsHistEmple]
+
+@linea         numeric
+as 
+/*
+PROPOSITO>
+Invocado por el trigger  tr_ins_plcierre
+para crear el registro en HISTORICO_NUEVO
+
+HISTORIAL DE EMPLEADOS
+select * from plcierre where cierre_linea = 7683
+
+delete from HISTORICO_NUEVO where  linea = 7683
+select * from HISTORICO_NUEVO where  linea = 7683
+ 
+insert into HISTORICO_NUEVO
+exec spInsHistEmple 7683
+
+*/
+
+SELECT     
+ plcierre.cierre_g_financiero  as grupo_financiero,--
+ plcierre.cierre_empresa       as empresa, --
+ plcierre.cierre_empleado      as empleado,
+ plcierre.cierre_tipo_plani    as tipo_planilla,
+ plcierre.cierre_tipo_cierre   as tipo_cierre,
+ '0'                           as origen,
+ plcierre.cierre_linea         as linea,
+ 
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         plcierre.cierre_concepto_apli as concepto,   
+         placopag.copa_descripcion     as descripcion_concepto,   
+         plcierre.cierre_horas_ordi    as horas_trabajadas,   
+          case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(SELECT  sum(  c102.cierre_monto_bruto )
+    FROM        plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and  
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  )              
+),0))
+   else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end) end as monto_bruto,   
+         case when plcierre.cierre_concepto_apli = 1 then - isnull( cierre_mto_descontado,0) else 0  end         as monto_descontado ,
+         case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(
+SELECT  sum(  
+         c102.cierre_monto_bruto )
+    FROM  
+         plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and 
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  ) 
+),0))
+ - isnull( cierre_mto_descontado,0) else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end)   end as monto_bruto_pagar,   
+         case when plcierre.cierre_concepto_apli in ( 1,71) or cierre_tipo_cierre != 1  then -  cierre_imp_renta else  0 end as imprenta,   
+
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_educativo else  0 end as segeducativo,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_social    else  0 end as segsocial,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_otras_deducc  else  0 end as acreedores,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then   cierre_neto_paga     else  0 end as Neto,   
+         plcierre.cierre_fecha_desde as  fecha_desde,   
+         plcierre.cierre_fecha_hasta as  fecha_hasta,   
+         plaestad.esta_estado        as  estado,   
+         plaestad.esta_descripcion   as  descripcion_estado,   
+         plmemple.empl_salario       as  salario_mensual,   
+         plmemple.empl_rata_hora     as rata_por_hora,   
+         plmemple.empl_jornada       as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia,
+         '1'                         as FLAG     ---columna control  FLAG=1 indica que son de planillas cerradas
+
+     FROM plcierre,    
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( plcierre.cierre_g_financiero = placopag.copa_g_financiero ) and  
+         ( plcierre.cierre_empresa = placopag.copa_empresa ) and  
+         ( plcierre.cierre_concepto_apli = placopag.copa_concepto_pago ) and  
+         ( plcierre.cierre_g_financiero = plmemple.empl_g_financiero ) and  
+         ( plcierre.cierre_empresa = plmemple.empl_empresa ) and  
+         ( plcierre.cierre_empleado = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) --and   ( ( plcierre.cierre_empresa = @Empresa )
+    AND  ( plmemple.empl_estado not in ('2','4') --) 
+
+)    and 
+
+ plcierre.cierre_linea = @linea
+       
+ORDER BY plcierre.cierre_g_financiero ASC,   
+         plcierre.cierre_empresa ASC,   
+         plcierre.cierre_empleado ASC,   		 
+         cierre_fecha_hasta asc ,
+			cierre_tipo_cierre asc, 
+			cierre_fecha_desde asc ,
+         plcierre.cierre_concepto_apli ASC   
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spInsSalariosPlanillaActual]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+
+CREATE proc  [dbo].[spInsSalariosPlanillaActual]
+@linea       int
+as 
+/*
+PROPOSITO>
+Invocado por el trigger  tr_ins_del_placreg
+para crear el registro en HISTORICO_NUEVO
+
+--Salarios Planilla Actual-- 
+ 
+--delete from HISTORICO_NUEVO where  linea = 62956
+select * from HISTORICO_NUEVO where   linea = 62956
+exec [spInsSalariosPlanillaActual] 62956
+ 
+insert into HISTORICO_NUEVO
+exec [spInsSalariosPlanillaActual] 62956
+*/
+
+
+ SELECT  
+ placreg.creg_g_financiero  as grupo_financiero,
+ placreg.creg_empresa       as empresa, 
+ placreg.creg_empleado      as empleado,
+ placreg.creg_tipo_planilla as tipo_planilla,
+ '0'                        as tipo_cierre,
+ placreg.creg_origen        as origen, 
+ placreg.creg_linea as linea,
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         placreg.creg_concepto         as concepto,   
+         placopag.copa_descripcion     as descripcion_concepto,   
+         placreg.creg_horas_ordinarias as horas_trabajadas,   
+/*         case when creg_concepto = 102 then creg_monto_bruto    else 0  end as Monto_Incapacidades, */  
+         case when creg_concepto = 1 then creg_mto_ordinario - isnull( ( SELECT sum( pc102.creg_monto_bruto  )
+    FROM placreg pc102 
+   WHERE ( pc102.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( pc102.creg_empresa = plmemple.empl_empresa ) and  
+         ( pc102.creg_empleado = plmemple.empl_empleado ) and  
+         ( pc102.creg_concepto = 102 ) ),0)   else ( case when creg_concepto = 102 then creg_monto_bruto else creg_monto_bruto end) end as monto_bruto,   
+         case when creg_concepto = 1 then - isnull( creg_sueldo_base_descontado,0) else 0  end as monto_descontado ,
+         case when creg_concepto = 1 then creg_mto_ordinario  - isnull( ( SELECT sum( pc102.creg_monto_bruto  )
+    FROM placreg pc102 
+   WHERE ( pc102.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( pc102.creg_empresa = plmemple.empl_empresa ) and  
+         ( pc102.creg_empleado = plmemple.empl_empleado ) and  
+         ( pc102.creg_concepto = 102 ) ),0)    - isnull( creg_sueldo_base_descontado,0) else ( case when creg_concepto = 102 then creg_monto_bruto else creg_monto_bruto end)   end as monto_bruto_pagar,   
+         case when creg_concepto = 1 then -  creg_imp_renta    else  0 end as imprenta,   
+         case when creg_concepto = 1 then - creg_seguro_educa  else  0 end as segeducativo,   
+         case when creg_concepto = 1 then - creg_seguro_social else  0 end as segsocial,   
+         case when creg_concepto = 1 then - creg_otras_deducc  else  0 end as acreedores,   
+         case when creg_concepto = 1 then  creg_monto_neto     else  0 end as Neto,   
+
+         placreg.creg_fecha_desde as fecha_desde,   
+         placreg.creg_fecha_hasta as fecha_hasta,   
+
+         plaestad.esta_estado        as estado,   
+         plaestad.esta_descripcion   as descripcion_estado,   
+         plmemple.empl_salario       as salario_mensual,   
+         plmemple.empl_rata_hora     as rata_por_hora,   
+         plmemple.empl_jornada       as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia 
+         ,'0' as FLAG
+    FROM placreg,   
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( placreg.creg_g_financiero = placopag.copa_g_financiero ) and  
+         ( placreg.creg_empresa = placopag.copa_empresa ) and  
+         ( placreg.creg_concepto = placopag.copa_concepto_pago ) and  
+         ( placreg.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( placreg.creg_empresa = plmemple.empl_empresa ) and  
+         ( placreg.creg_empleado = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) and  
+         ( ( placreg.creg_linea = @linea  ) AND  
+         ( plmemple.empl_estado not in ('2','4') ) )   
+ORDER BY placreg.creg_g_financiero ASC,   
+         placreg.creg_empresa ASC,   
+         placreg.creg_empleado ASC,   
+         placreg.creg_concepto ASC   
+
+
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepAgnosHistorico]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE  proc [dbo].[spRepAgnosHistorico]
+
+
+/*
+PAra el cbo de los reportes
+spRepAgnosHistorico
+*/
+as 
+select distinct YEAR(fecha_desde) as agno from historico_nuevo order by  YEAR(fecha_desde) desc
+ 
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepDescAcreed]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+CREATE proc  [dbo].[spRepDescAcreed]
+@Empresa       int
+as 
+/*
+--Descuentos de acreedores Planilla Actual 
+
+plmemple.empl_empresa = 6
+
+spRepDescAcreed  3
+*/
+
+
+ SELECT 
+            plmemple.empl_empleado as empleado ,
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,
+
+         placacre.cacre_tipo_captura as origen,   
+         placacre.cacre_tipo_deducc as tipo_deduccion,   
+         pladeduc.dedu_descripcion as descripcion_tipo_deduccion,   
+         plmacred.acre_codigo_acreedor as  codigo_acreedor,   
+         dgmterce.terc_descripcion as nombre_acreedor,   
+         placacre.cacre_periodo_desc as numero_quincena,   
+         placacre.cacre_pago_periodo as monto_descontado,   
+         placacre.cacre_fecha_desde ,
+ placacre.cacre_fecha_hasta 
+       
+    FROM plmemple,   
+         placacre,   
+         pladeduc,   
+         dgmterce,   
+         plmacred  
+   WHERE ( placacre.cacre_g_financiero = plmemple.empl_g_financiero ) and  
+         ( placacre.cacre_empresa = plmemple.empl_empresa ) and  
+         ( placacre.cacre_empleado = plmemple.empl_empleado ) and  
+         ( placacre.cacre_g_financiero = pladeduc.dedu_g_financiero ) and  
+         ( placacre.cacre_empresa = pladeduc.dedu_empresa ) and  
+         ( placacre.cacre_tipo_deducc = pladeduc.dedu_codigo ) and  
+         ( dgmterce.terc_tercero = placacre.cacre_tercero ) and  
+         ( placacre.cacre_g_financiero = plmacred.acre_g_financiero ) and  
+         ( placacre.cacre_empresa = plmacred.acre_empresa ) and  
+         ( placacre.cacre_tercero = plmacred.acre_tercero ) and  
+         ( ( plmemple.empl_empresa = @Empresa ) AND  
+         ( plmemple.empl_estado not in ('2','4') ) )   order by 
+
+ plmemple.empl_empleado, 
+  plmacred.acre_codigo_acreedor ; 
+
+
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepEmpresas]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+create procedure [dbo].[spRepEmpresas]
+
+as
+
+ 
+
+
+select   a.empr_empresa, 
+'('+ convert(varchar(5),a.empr_empresa)+')' + ' ' + a.empr_razon_social as nombre_empresa  from dgmempre a
+ 
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistAcreed]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+CREATE proc  [dbo].[spRepHistAcreed]
+@FechaInicial  date,
+@FechaFinal    date,
+@Empresa       int
+as 
+/*
+HISTORIAL DE ACREEDORES
+parametros
+fecha inicial y final para  plhacre.acre_fecha_hasta
+plmemple.empl_empresa = 6
+
+spRepHistAcreed '2015-01-01 00:00:00.000','2015-01-15 00:00:00.000',6
+*/
+
+SELECT 
+            plmemple.empl_empleado as empleado ,
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,
+
+         case plhacre.acre_procedencia_actualiza when 0 then 'P/Regular' when 1 then 'Vacaciones' else 'Otros' end as origen,   
+         plhacre.acre_tipo_deducc as tipo_deduccion,   
+         pladeduc.dedu_descripcion as descripcion_tipo_deduccion,   
+         plmacred.acre_codigo_acreedor as  codigo_acreedor,   
+         dgmterce.terc_descripcion as nombre_acreedor,   
+         plhacre.acre_periodo_desc as numero_quincena,   
+         plhacre.acre_pago_periodo as monto_descontado,   
+         plhacre.acre_fecha_desde ,
+         plhacre.acre_fecha_hasta 
+       
+    FROM plmemple,   
+         plhacre,   
+         pladeduc,   
+         dgmterce,   
+         plmacred  
+   WHERE ( plhacre.acre_g_financiero = plmemple.empl_g_financiero ) and  
+         ( plhacre.acre_empresa = plmemple.empl_empresa ) and  
+         ( plhacre.acre_empleado = plmemple.empl_empleado ) and  
+         ( plhacre.acre_g_financiero = pladeduc.dedu_g_financiero ) and  
+         ( plhacre.acre_empresa = pladeduc.dedu_empresa ) and  
+         ( plhacre.acre_tipo_deducc = pladeduc.dedu_codigo ) and  
+         ( dgmterce.terc_tercero = plhacre.acre_tercero ) and  
+         ( plhacre.acre_g_financiero = plmacred.acre_g_financiero ) and  
+         ( plhacre.acre_empresa = plmacred.acre_empresa ) and  
+         ( plhacre.acre_tercero = plmacred.acre_tercero ) and  
+         ( ( plmemple.empl_empresa = @Empresa )
+ AND    ( plmemple.empl_estado not in ('2','4') )
+
+ )  and 
+   --plhacre.acre_fecha_hasta >= '2015/01/01' 
+ plhacre.acre_fecha_hasta between @FechaInicial and @FechaFinal
+  order by 
+
+ plmemple.empl_empleado, 
+ plhacre.acre_fecha_hasta,
+  plmacred.acre_codigo_acreedor ; 
+
+
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistEmple]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+CREATE  proc  [dbo].[spRepHistEmple]
+@FechaInicial  date,
+@FechaFinal    date,
+@Empresa       int,
+@Empleado      int=null,
+@IncluirConceptos int=null
+as 
+/*
+HISTORIAL DE EMPLEADOS
+parametros
+fecha inicial y final para   plcierre.cierre_fecha_hasta
+plcierre.empl_empresa = 6
+ 
+exec [spRepHistEmple] '2014-12-01 00:00:00.000','2015-08-12 00:00:00.000',6,NULL,1
+exec [spRepHistEmple] null, null,null
+
+Incluir o no los conceptos que no aplican xiii
+numero de empleado
+*/
+Declare @sql varchar(5000)= '', @arg varchar(5000) = '', @orderby varchar(500)= ''
+
+ 
+ /*
+ modificacion dic.2015
+ excluir estos registros
+ la exclusion es    opcional
+ */
+ ------------
+------------ drop table #Z
+ --select * from platidev where tide_tipo_devengado = 28
+--DIC. 10.2015 agregar manualmente el 102 ---- 
+ update platidev set tide_paga_decimotercero = 1 where tide_tipo_devengado = 28
+ 
+select a.copa_concepto_pago, a.copa_tipo_devengado into #Z --, b.*  into #Z   
+from placopag a, platidev b where   copa_empresa = 6 
+and a.copa_tipo_devengado  = b.tide_tipo_devengado 
+and b.tide_paga_decimotercero =0 
+
+ 
+ --------
+ if @Empresa IS NULL SET @Empresa = 6
+ IF @FechaFinal is null set @FechaFinal	= GETDATE()
+ IF @FechaInicial   is null set @FechaInicial	= GETDATE()
+
+-- query principal
+set @sql = ''
+set @sql = 'select   *,'
+set @sql = @sql + ' case h.tipo_cierre  '
+set @sql = @sql + ' when 1 then ' +    CHAR(39) + ' Regular ' +  CHAR(39)  
+set @sql = @sql + ' when 2 then ' +    CHAR(39) + ' XIIIMes ' +  CHAR(39)   
+set @sql = @sql + ' when 3 then ' +    CHAR(39) + '  ' +  CHAR(39)   
+set @sql = @sql + ' when 4 then ' +    CHAR(39) + ' Liquidaciones ' +  CHAR(39)   
+set @sql = @sql + ' when 5 then ' +    CHAR(39) + ' Comisiones ' +  CHAR(39)   
+set @sql = @sql + ' when 6 then ' +    CHAR(39) + ' Pagos Adicionales ' + CHAR(39)   
+set @sql = @sql + ' else ' +   CHAR(39) + ' Otros ' + CHAR(39) + '  End as Planilla '
+set @sql = @sql + ' from HISTORICO_NUEVO h where 1 = 1 '
+set @sql = @sql + ' and h.empresa  = ' +   CHAR(39) + convert(varchar(5),@Empresa) +   CHAR(39)    
+set @sql = @sql + ' and  '
+set @sql = @sql + ' h.fecha_hasta between  ' +  CHAR(39) + CONVERT(varchar(15),@FechaInicial,111) + CHAR(39) +  ' and '  + CHAR(39) + CONVERT(varchar(15),@FechaFinal,111) + CHAR(39) 
+ 
+ --select @sql return  
+ 
+--orden de salida -- 
+set @orderby = ' order by h.grupo_financiero asc, h.empresa, h.empleado asc,'
+set @orderby = @orderby + ' h.fecha_hasta, h.tipo_cierre, h.concepto  '
+
+--select @sql + @orderby return 
+  
+--con empleado--
+ if @Empleado is not null
+     set @arg = ' and empleado = ' +  CHAR(39) + CONVERT(varchar(5), @Empleado) + CHAR(39)
+
+--select @sql + @arg return      
+--con conceptos --
+ if @IncluirConceptos is not null
+     set @arg = @arg + ' and concepto NOT in (select copa_concepto_pago from #Z) ' 
+     
+     
+ -- select   @sql  + @arg +  @orderby
+exec (@sql + @arg +  @orderby)
+
+drop table #Z 
+return 
+
+/*
+SELECT plcierre.cierre_empleado as empleado,   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         plcierre.cierre_concepto_apli as concepto,   
+         placopag.copa_descripcion as descripcion_concepto,   
+         plcierre.cierre_horas_ordi as horas_trabajadas,   
+          case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(SELECT  sum(  c102.cierre_monto_bruto )
+    FROM        plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and  
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  )              
+),0))
+   else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end) end as monto_bruto,   
+         case when plcierre.cierre_concepto_apli = 1 then - isnull( cierre_mto_descontado,0) else 0  end as monto_descontado ,
+         case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(
+SELECT  sum(  
+         c102.cierre_monto_bruto )
+    FROM  
+         plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and 
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  ) 
+),0))
+ - isnull( cierre_mto_descontado,0) else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end)   end as monto_bruto_pagar,   
+         case when plcierre.cierre_concepto_apli in ( 1,71) or cierre_tipo_cierre != 1  then -  cierre_imp_renta else  0 end as imprenta,   
+
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_social else  0 end as  segsocial,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_educativo else  0 end as  segeducativo,   
+
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then -  cierre_otras_deducc else  0 end as acreedores,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then  cierre_neto_paga else  0 end as Neto,   
+         plcierre.cierre_fecha_desde,   
+         plcierre.cierre_fecha_hasta,   
+         plaestad.esta_estado as estado,   
+         plaestad.esta_descripcion descripcion_estado,   
+         plmemple.empl_salario as salario_mensual,   
+         plmemple.empl_rata_hora as rata_por_hora,   
+         plmemple.empl_jornada as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia , 
+case cierre_tipo_cierre when 1 then 'Regular' when 2 then 'XIIIMes'  when 3 then 'Vacaciones'  when 4 then 'Liquidaciones'  when 5 then 'Comisiones'  when 6 then 'Pagos Adicionales'  else 'Otros' End as Planilla
+    FROM plcierre,    
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( plcierre.cierre_g_financiero = placopag.copa_g_financiero ) and  
+         ( plcierre.cierre_empresa = placopag.copa_empresa ) and  
+         ( plcierre.cierre_concepto_apli = placopag.copa_concepto_pago ) and  
+         ( plcierre.cierre_g_financiero = plmemple.empl_g_financiero ) and  
+         ( plcierre.cierre_empresa = plmemple.empl_empresa ) and  
+         ( plcierre.cierre_empleado = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) and  
+         ( ( plcierre.cierre_empresa = @Empresa  )
+
+ AND  ( plmemple.empl_estado not in ('2','4') ) 
+
+)    and 
+
+ plcierre.cierre_fecha_hasta between @FechaInicial and @FechaFinal
+--         plcierre.cierre_fecha_hasta >= '2015/01/01'
+ORDER BY plcierre.cierre_g_financiero ASC,   
+         plcierre.cierre_empresa ASC,   
+         plcierre.cierre_empleado ASC,   		 
+         cierre_fecha_hasta asc ,
+			cierre_tipo_cierre asc, 
+			cierre_fecha_desde asc ,
+         plcierre.cierre_concepto_apli ASC   
+; 
+*/
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistEmpleBK]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+CREATE  proc  [dbo].[spRepHistEmpleBK]
+@FechaInicial  date,
+@FechaFinal    date,
+@Empresa       int,
+@empleado      int=null
+as 
+/*
+HISTORIAL DE EMPLEADOS
+parametros
+fecha inicial y final para   plcierre.cierre_fecha_hasta
+plcierre.empl_empresa = 6
+ 
+exec [spRepHistEmple] '2015-01-01 00:00:00.000','2015-01-15 00:00:00.000',6,2
+exec [spRepHistEmple] null, null,null
+
+Incluir o no los conceptos que no aplican xiii
+numero de empleado
+*/
+if @empleado is not  null 
+   GOTO EMPLEADO
+else
+	GOTO SIN_EMPLEADO
+return 
+SIN_EMPLEADO:
+select   *,
+case h.tipo_cierre  
+when 1 then 'Regular' 
+when 2 then 'XIIIMes'  
+when 3 then 'Vacaciones'  
+when 4 then 'Liquidaciones'  
+when 5 then 'Comisiones'  
+when 6 then 'Pagos Adicionales'  
+else 'Otros' End as Planilla
+ from HISTORICO_NUEVO h
+ where h.empresa  = @Empresa   
+ and  
+ h.fecha_hasta between @FechaInicial and @FechaFinal 
+-- and empleado = @empleado 
+order by h.grupo_financiero asc, h.empresa, h.empleado asc,
+h.fecha_hasta, h.tipo_cierre, h.concepto  
+return 
+
+EMPLEADO:
+select   *,
+case h.tipo_cierre  
+when 1 then 'Regular' 
+when 2 then 'XIIIMes'  
+when 3 then 'Vacaciones'  
+when 4 then 'Liquidaciones'  
+when 5 then 'Comisiones'  
+when 6 then 'Pagos Adicionales'  
+else 'Otros' End as Planilla
+ from HISTORICO_NUEVO h
+ where h.empresa  = @Empresa   
+ and  
+ h.fecha_hasta between @FechaInicial and @FechaFinal 
+ and empleado = @empleado 
+order by h.grupo_financiero asc, h.empresa, h.empleado asc,
+h.fecha_hasta, h.tipo_cierre, h.concepto  
+return 
+/*
+SELECT plcierre.cierre_empleado as empleado,   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         plcierre.cierre_concepto_apli as concepto,   
+         placopag.copa_descripcion as descripcion_concepto,   
+         plcierre.cierre_horas_ordi as horas_trabajadas,   
+          case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(SELECT  sum(  c102.cierre_monto_bruto )
+    FROM        plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and  
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  )              
+),0))
+   else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end) end as monto_bruto,   
+         case when plcierre.cierre_concepto_apli = 1 then - isnull( cierre_mto_descontado,0) else 0  end as monto_descontado ,
+         case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(
+SELECT  sum(  
+         c102.cierre_monto_bruto )
+    FROM  
+         plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and 
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  ) 
+),0))
+ - isnull( cierre_mto_descontado,0) else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end)   end as monto_bruto_pagar,   
+         case when plcierre.cierre_concepto_apli in ( 1,71) or cierre_tipo_cierre != 1  then -  cierre_imp_renta else  0 end as imprenta,   
+
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_social else  0 end as  segsocial,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_educativo else  0 end as  segeducativo,   
+
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then -  cierre_otras_deducc else  0 end as acreedores,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then  cierre_neto_paga else  0 end as Neto,   
+         plcierre.cierre_fecha_desde,   
+         plcierre.cierre_fecha_hasta,   
+         plaestad.esta_estado as estado,   
+         plaestad.esta_descripcion descripcion_estado,   
+         plmemple.empl_salario as salario_mensual,   
+         plmemple.empl_rata_hora as rata_por_hora,   
+         plmemple.empl_jornada as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia , 
+case cierre_tipo_cierre when 1 then 'Regular' when 2 then 'XIIIMes'  when 3 then 'Vacaciones'  when 4 then 'Liquidaciones'  when 5 then 'Comisiones'  when 6 then 'Pagos Adicionales'  else 'Otros' End as Planilla
+    FROM plcierre,    
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( plcierre.cierre_g_financiero = placopag.copa_g_financiero ) and  
+         ( plcierre.cierre_empresa = placopag.copa_empresa ) and  
+         ( plcierre.cierre_concepto_apli = placopag.copa_concepto_pago ) and  
+         ( plcierre.cierre_g_financiero = plmemple.empl_g_financiero ) and  
+         ( plcierre.cierre_empresa = plmemple.empl_empresa ) and  
+         ( plcierre.cierre_empleado = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) and  
+         ( ( plcierre.cierre_empresa = @Empresa  )
+
+ AND  ( plmemple.empl_estado not in ('2','4') ) 
+
+)    and 
+
+ plcierre.cierre_fecha_hasta between @FechaInicial and @FechaFinal
+--         plcierre.cierre_fecha_hasta >= '2015/01/01'
+ORDER BY plcierre.cierre_g_financiero ASC,   
+         plcierre.cierre_empresa ASC,   
+         plcierre.cierre_empleado ASC,   		 
+         cierre_fecha_hasta asc ,
+			cierre_tipo_cierre asc, 
+			cierre_fecha_desde asc ,
+         plcierre.cierre_concepto_apli ASC   
+; 
+*/
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistVacaciones]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE proc [dbo].[spRepHistVacaciones]
+@inicio date,
+@fin    date,
+@Empresa  int=null,
+@Empleado int=null
+
+as
+/*
+Proposito> Mostrar el historico de vacaciones dado un rango de fechas
+Fecha>  Diciembre 2015
+Parametros
+@inicio     fecha inicial de interes
+@fin        fecha final de interes
+@Empresa    codigo de empresa
+@Empleado   numero del empleado
+
+exec spRepHistVacaciones '2015-01-01','2015-12-31',6,1   239
+select * from historico_nuevo where    empleado = 1 
+
+*/
+
+
+Declare @sql varchar(1000)= ''
+
+select cierre_agno,cierre_mes, cierre_fecha_desde, cierre_fecha_hasta,cierre_empleado,cierre_empresa,
+(select top 1  ltrim(rtrim(h.nombre)) from historico_nuevo h where h.empleado = plcierre.cierre_empleado and h.empresa= plcierre.cierre_empresa ) as nombre,
+sum(cierre_neto_paga) as sum_de_cierre_neto_paga, sum(cierre_dias_vacacion) as sum_de_cierre_dias_vacacion 
+   into #V
+from plcierre where cierre_dias_vacacion > 0 --and cierre_empresa = 6  and cierre_empleado = 145
+and cierre_fecha_hasta between @inicio and @fin
+ group by cierre_agno,cierre_mes, cierre_fecha_desde, cierre_fecha_hasta,cierre_empleado,cierre_empresa
+  
+ delete from #V where nombre is null -- ya no estan en la empresa 
+
+--set @sql = 'select * from #V where cierre_agno=  ' + @agno
+set @sql = 'select * from #V where 1=1 '  
+if @Empleado is not  null 
+   set @sql = @sql + ' and cierre_empleado= ' + char(39) + convert(varchar(5), @empleado) + char(39)
+if @Empresa is not  null 
+   set @sql = @sql + ' and cierre_empresa= ' + char(39) + convert(varchar(5), @empresa) + char(39)   
+
+exec(@sql + ' order by nombre ')
+
+-- select * from #V  order by nombre
+   drop table #V 
+-----fin de acumulados x agno---
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepHistVacNuevo]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+CREATE   proc [dbo].[spRepHistVacNuevo]
+@FechaCorte  date=null,
+@Empresa     int=null,
+@Empleado    int=null
+as 
+
+/*
+ 
+exec spRepHistVacNuevo '2015-12-01',6,1
+exec spRepHistVacNuevo null,null,null
+--  historico de vacaciones --
+Proposito>  Mostrar los registros historicos de vacaciones 
+Fecha>   Diciembre 2015
+
+Parametros:
+Fecha de corte
+Num. Empleado
+Compania
+
+Salida>
+1. Num empleado, Nombre de empleado, Fecha de ingreso, 
+3. Dias Tomados =   sumatoria de dias vacaciones hasta la fecha_corte.  
+2. Dias Vacaciones Acumulados=  (fnday360(FEchaIngreso, Fechacorte) - DiasTomados)/11
+
+C. Dias Disponibles = Acumulado - Tomado
+
+A. Salario Promedio ultimos 11 meses:Suma del monto bruto del calculo de renta usando (FEcha de corte(hasta) y Fecha corte - 11 meses(desde) + 1 dia) = 11
+   Si la (fecha ingreso - fecha_corte) es menor a 11  / date360(fechacorte, fechaingreso)/30
+    exec [spCalcularDecimo] '2014-12-16','2015-12-15',6,   239     --1 norma     migdalia 323  274 abraham dario
+   
+   -- select * from  platidev si tide_paga_vacaciones = 1 entonces sumar monto_bruto
+
+B. Salario Base ultimo: 
+   select empleado,    max(fecha_hasta), max(salario_mensual) ,count(*)
+  from historico_nuevo where empresa = 6 and concepto = 1 and empleado = 105 
+  and  fecha_hasta  <=  '2015-12-31 00:00:00.000'  --@FechaCorte
+  group by  empleado
+
+6. Vacaciones en $ promedio utlimos 11 meses: A*C/30
+7. Vacaciones en $ Salario Base:   B*C/30
+
+-- 2 inactivo, 4 liquidado
+select empl_empleado, empl_nombre1, empl_nombre2, empl_apellido_paterno, empl_apellido_materno,empl_fecha_ingreso,
+(dbo.fnDateDiff360 (empl_fecha_ingreso, '2015-12-01 00:00:00.000'))*30/360 as vasacum
+ from plmemple where empl_empresa  = 6 and 
+empl_fecha_ingreso <= '2015-12-01 00:00:00.000' and empl_estado not in (2,4)
+*/
+
+   
+-- 2 inactivo, 4 liquidado
+set nocount on 
+declare 
+--@FechaCorte date = '2015-12-01 00:00:00.000', @Empresa int = 6,
+@FechaCorteMenosOnce date 
+set @FechaCorteMenosOnce = dateadd(mm,-11,@FEchaCorte) 
+
+if @FechaCorte is null and @Empresa is null
+   GOTO PROCEDIMIENTO
+else
+   GOTO REPORTING
+return
+    
+PROCEDIMIENTO:
+select * from myVacaNuevo
+return 
+
+REPORTING:
+
+--3. Dias Tomados =   sumatoria de dias vacaciones hasta la fecha_corte.  
+select cierre_empleado as empleado , isnull(sum(cierre_dias_vacacion),15) as SumDiasVacaciones 
+INTO #K
+from plcierre c 
+where c.cierre_empresa = @EMPRESA and c.cierre_concepto_apli = 69
+and c.cierre_fecha_hasta <=@FechaCorte
+group by cierre_empleado 
+
+--2. Dias Vacaciones Acumulados 
+select e.empl_empleado as empleado,@FechaCorte as FechaCorte, --empl_nombre1, empl_nombre2, empl_apellido_paterno, empl_apellido_materno,
+dbo.fnNombreCompleto(@empresa, e.empl_empleado) as NombreCompleto,
+e.empl_fecha_ingreso as fecha_ingreso,
+(dbo.fnDateDiff360 (e.empl_fecha_ingreso, @FechaCorte)) as DiasVacaAcumulado
+,e.empl_empresa as empresa
+ INTO #T
+ from plmemple  e  where e.empl_empresa  = @Empresa and 
+e.empl_fecha_ingreso <= @FechaCorte and e.empl_estado not in (2,4)
+  
+
+--AGREGAR DIAS_TOMADOS--
+ALTER TABLE #T ADD DIAS_TOMADOS numeric(7,2)
+
+update a set DIAS_TOMADOS = SumDiasVacaciones
+FROM #T a, #K b 
+where a.empleado = b.empleado
+
+update #T set  DIAS_TOMADOS = 0 where DIAS_TOMADOS IS NULL 
+
+--ACTUALIZAR DiasVacaAcumulado--
+update #T set  DiasVacaAcumulado = (DiasVacaAcumulado - DIAS_TOMADOS ) /11 
+
+
+--AGREGAR DIAS_DISPONIBLES--
+ALTER TABLE #T ADD DIAS_DISPONIBLES numeric(7,2)
+UPDATE #T set DIAS_DISPONIBLES = DiasVacaAcumulado - DIAS_TOMADOS
+
+--SALARIO PROMEDIO DE ULTIMOS 11 MESES--
+--mydecimo  es una tabla de trabajo y la usa el reporting services para ver las columnas 
+ truncate table  mydecimo
+ insert into mydecimo
+ exec [spCalcularDecimo] @FechaCorteMenosOnce,@FechaCorte,@empresa
+
+alter table #T ADD SALARIO_PROMEDIO NUMERIC(18,2)
+alter table #T ADD FACTOR           NUMERIC(18,2)
+
+
+--FECHA_FINAL--
+update a set  FACTOR = case  when  ( a.fecha_Ingreso  <= @FechaCorteMenosOnce ) 
+                                     then 11 
+                              else (select dbo.fnDateDiff360(a.fechaCorte, a.fecha_Ingreso)/30) 
+                              end 
+from #T a, myDecimo b where a.empleado = b.empleado and a.empresa = b.empresa
+update #t set factor = 1 where factor = 0 
+--SALARIO PROMEDIO DE ULTIMOS 11 MESES--
+
+update a set  SALARIO_PROMEDIO = b.MONTO_BRUTO / a.FACTOR
+from #T a, myDecimo b where a.empleado = b.empleado and a.empresa = b.empresa
+
+--SALARIO BASE ULTIMO - - 
+select empresa, empleado,    max(fecha_hasta) as FECHA_HASTA, max(salario_mensual) as SALARIO_MENSUAL  
+into #A
+from historico_nuevo where empresa = @empresa and concepto = 1 --salario ordinaniro -- and empleado = 105 
+and  fecha_hasta  <=        @FechaCorte  --'2015-12-31 00:00:00.000'
+group by  empleado, empresa
+
+--select * from #a 
+
+alter table #T add SALARIO_BASE_ULTIMO NUMERIC(18,2)
+UPDATE a set  SALARIO_BASE_ULTIMO = b.SALARIO_MENSUAL
+from  #T a, #A b
+where a.empleado = b.empleado and a.empresa = b.empresa
+ 
+
+--VACACIONES PROMEDIO--
+alter table #T add VACACIONES_PROMEDIO_EFECTIVO numeric(18,2)
+update #T set VACACIONES_PROMEDIO_EFECTIVO = SALARIO_PROMEDIO*DIAS_DISPONIBLES / 30.00   --A*C/30
+
+--VACACIONES SALARIO BASE
+alter table #T add VACACIONES_SALARIO_BASE numeric(18,2)
+update #T set VACACIONES_SALARIO_BASE = SALARIO_BASE_ULTIMO*DIAS_DISPONIBLES / 30.00   --B*C/30
+
+--VALOR VACACIONES  
+alter table #T add VALOR_VACACIONES  numeric(18,2)
+update #T set VALOR_VACACIONES = CASE WHEN VACACIONES_PROMEDIO_EFECTIVO > VACACIONES_SALARIO_BASE THEN VACACIONES_PROMEDIO_EFECTIVO
+                                 ELSE  VACACIONES_SALARIO_BASE END 
+
+--drop table myVacaNuevo
+-- select * from myVacaNuevo
+--select   *, @FechaCorteMenosOnce as FEchaCorteMenosOnce    from #T  --where divisor = 0.00   --where DIAS_DISPONIBLES < 0
+declare @sql varchar(500)
+set @sql = 'select   *     from #T  where 1=1 '
+if @empleado is not null
+   set @sql = @sql + ' and empleado = ' + char(39)+ convert(varchar(5), @empleado) + char(39)  
+
+exec(@sql)
+ 
+drop table #a
+drop table #T
+drop table #K    
+
+return
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepSalariosPlanillaActual]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+CREATE proc  [dbo].[spRepSalariosPlanillaActual]
+@Empresa       int
+as 
+/*
+--Salarios Planilla Actual 
+
+ parametros
+ plmemple.empl_empresa = 6
+
+spRepHistAcreed '2015-01-01 00:00:00.000','2015-01-15 00:00:00.000',6
+*/
+
+
+ SELECT placreg.creg_empleado as empleado,   
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         placreg.creg_concepto as concepto,   
+         placopag.copa_descripcion as descripcion_concepto,   
+         placreg.creg_horas_ordinarias as horas_trabajadas,   
+/*         case when creg_concepto = 102 then creg_monto_bruto    else 0  end as Monto_Incapacidades, */  
+         case when creg_concepto = 1 then creg_mto_ordinario - isnull( ( SELECT sum( pc102.creg_monto_bruto  )
+    FROM placreg pc102 
+   WHERE ( pc102.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( pc102.creg_empresa = plmemple.empl_empresa ) and  
+         ( pc102.creg_empleado = plmemple.empl_empleado ) and  
+         ( pc102.creg_concepto = 102 ) ),0)   else ( case when creg_concepto = 102 then creg_monto_bruto else creg_monto_bruto end) end as monto_bruto,   
+         case when creg_concepto = 1 then - isnull( creg_sueldo_base_descontado,0) else 0  end as monto_descontado ,
+         case when creg_concepto = 1 then creg_mto_ordinario  - isnull( ( SELECT sum( pc102.creg_monto_bruto  )
+    FROM placreg pc102 
+   WHERE ( pc102.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( pc102.creg_empresa = plmemple.empl_empresa ) and  
+         ( pc102.creg_empleado = plmemple.empl_empleado ) and  
+         ( pc102.creg_concepto = 102 ) ),0)    - isnull( creg_sueldo_base_descontado,0) else ( case when creg_concepto = 102 then creg_monto_bruto else creg_monto_bruto end)   end as monto_bruto_pagar,   
+         case when creg_concepto = 1 then -  creg_imp_renta else  0 end as imprenta,   
+         case when creg_concepto = 1 then - creg_seguro_educa else  0 end as  segeducativo,   
+         case when creg_concepto = 1 then - creg_seguro_social else  0 end as  segsocial,   
+         case when creg_concepto = 1 then - creg_otras_deducc else  0 end as acreedores,   
+         case when creg_concepto = 1 then  creg_monto_neto else  0 end as Neto,   
+
+         placreg.creg_fecha_desde,   
+         placreg.creg_fecha_hasta,   
+
+         plaestad.esta_estado as estado,   
+         plaestad.esta_descripcion descripcion_estado,   
+         plmemple.empl_salario as salario_mensual,   
+         plmemple.empl_rata_hora as rata_por_hora,   
+         plmemple.empl_jornada as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia 
+    FROM placreg,   
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( placreg.creg_g_financiero = placopag.copa_g_financiero ) and  
+         ( placreg.creg_empresa = placopag.copa_empresa ) and  
+         ( placreg.creg_concepto = placopag.copa_concepto_pago ) and  
+         ( placreg.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( placreg.creg_empresa = plmemple.empl_empresa ) and  
+         ( placreg.creg_empleado = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) and  
+         ( ( placreg.creg_empresa = @Empresa  ) AND  
+         ( plmemple.empl_estado not in ('2','4') ) )   
+ORDER BY placreg.creg_g_financiero ASC,   
+         placreg.creg_empresa ASC,   
+         placreg.creg_empleado ASC,   
+         placreg.creg_concepto ASC   
+
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spRepSalariosPlanillaActualBK]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+CREATE proc  [dbo].[spRepSalariosPlanillaActualBK]
+@Empresa       int
+as 
+/*
+--Salarios Planilla Actual-- 
+
+ parametros
+ plmemple.empl_empresa = 6
+
+select top 5 * from plcierre where cierre_empresa = 6
+exec spRepSalariosPlanillaActualBK 6
+ 
+*/
+
+
+ SELECT  
+ placreg.creg_g_financiero  as grupo_financiero,
+ placreg.creg_empresa       as empresa, 
+ placreg.creg_empleado      as empleado,
+ placreg.creg_tipo_planilla as tipo_planilla,
+ '0'                        as tipo_cierre,
+ placreg.creg_origen        as origen, 
+ placreg.creg_linea as linea,
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         placreg.creg_concepto         as concepto,   
+         placopag.copa_descripcion     as descripcion_concepto,   
+         placreg.creg_horas_ordinarias as horas_trabajadas,   
+/*         case when creg_concepto = 102 then creg_monto_bruto    else 0  end as Monto_Incapacidades, */  
+         case when creg_concepto = 1 then creg_mto_ordinario - isnull( ( SELECT sum( pc102.creg_monto_bruto  )
+    FROM placreg pc102 
+   WHERE ( pc102.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( pc102.creg_empresa = plmemple.empl_empresa ) and  
+         ( pc102.creg_empleado = plmemple.empl_empleado ) and  
+         ( pc102.creg_concepto = 102 ) ),0)   else ( case when creg_concepto = 102 then creg_monto_bruto else creg_monto_bruto end) end as monto_bruto,   
+         case when creg_concepto = 1 then - isnull( creg_sueldo_base_descontado,0) else 0  end as monto_descontado ,
+         case when creg_concepto = 1 then creg_mto_ordinario  - isnull( ( SELECT sum( pc102.creg_monto_bruto  )
+    FROM placreg pc102 
+   WHERE ( pc102.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( pc102.creg_empresa = plmemple.empl_empresa ) and  
+         ( pc102.creg_empleado = plmemple.empl_empleado ) and  
+         ( pc102.creg_concepto = 102 ) ),0)    - isnull( creg_sueldo_base_descontado,0) else ( case when creg_concepto = 102 then creg_monto_bruto else creg_monto_bruto end)   end as monto_bruto_pagar,   
+         case when creg_concepto = 1 then -  creg_imp_renta    else  0 end as imprenta,   
+         case when creg_concepto = 1 then - creg_seguro_educa  else  0 end as segeducativo,   
+         case when creg_concepto = 1 then - creg_seguro_social else  0 end as segsocial,   
+         case when creg_concepto = 1 then - creg_otras_deducc  else  0 end as acreedores,   
+         case when creg_concepto = 1 then  creg_monto_neto     else  0 end as Neto,   
+
+         placreg.creg_fecha_desde as fecha_desde,   
+         placreg.creg_fecha_hasta as fecha_hasta,   
+
+         plaestad.esta_estado        as estado,   
+         plaestad.esta_descripcion   as descripcion_estado,   
+         plmemple.empl_salario       as salario_mensual,   
+         plmemple.empl_rata_hora     as rata_por_hora,   
+         plmemple.empl_jornada       as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia 
+         ,'0' as FLAG
+    FROM placreg,   
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( placreg.creg_g_financiero = placopag.copa_g_financiero ) and  
+         ( placreg.creg_empresa = placopag.copa_empresa ) and  
+         ( placreg.creg_concepto = placopag.copa_concepto_pago ) and  
+         ( placreg.creg_g_financiero = plmemple.empl_g_financiero ) and  
+         ( placreg.creg_empresa = plmemple.empl_empresa ) and  
+         ( placreg.creg_empleado = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) and  
+         ( ( placreg.creg_empresa = @Empresa  ) AND  
+         ( plmemple.empl_estado not in ('2','4') ) )   
+ORDER BY placreg.creg_g_financiero ASC,   
+         placreg.creg_empresa ASC,   
+         placreg.creg_empleado ASC,   
+         placreg.creg_concepto ASC   
+
+
+
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spSelHistorico_Nuevo]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+CREATE proc [dbo].[spSelHistorico_Nuevo]
+@empleado numeric(5,0)=null,
+@concepto smallint = 0,
+--@inicio date=null,
+--@fin    date=null,
+@grupo_financiero numeric(2,0)=1,
+@empresa numeric(3,0)=6
+
+as
+
+/******************************
+Propósito:  Recuperar los registros FLAG=2
+Dic 4.2015
+Usado para la forma de modificacion del historico_nuevo
+exec spSelHistorico_Nuevo 442,0 -- 0,1,68
+
+recuperar la fecha de inicio
+conceptos:
+1  Salario Ordinario
+68  XIII
+*******************************/
+--set nocount on
+declare @sql varchar(2000)=''
+
+set @sql = 'select h.* from HISTORICO_NUEVO h where h.FLAG= 2'
+
+set @sql = 'select  (select  CONVERT(varchar(10),e.empl_fecha_ingreso,111)     '
+set @sql = @sql + '		from plmemple e where e.empl_empleado = h.empleado '
+set @sql = @sql + '		and e.empl_empresa = h.empresa and e.empl_g_financiero = h.grupo_financiero) as FECHA_INGRESO, '
+set @sql = @sql + '		h.* from HISTORICO_NUEVO h where h.FLAG= 2  '
+
+
+--select e.empl_fecha_ingreso, CONVERT(varchar(10),e.empl_fecha_ingreso,111)    	from plmemple e  where e.empl_fecha_ingreso is null
+
+--predicados para búsqueda --
+if @empleado is not null
+   set @sql = @sql + ' and h.empleado = ' + convert(varchar(10),@empleado)
+if @empresa is not null
+   set @sql = @sql + ' and h.empresa  = '  + convert(varchar(10),@empresa)
+if @grupo_financiero is not null   
+   set @sql = @sql + ' and h.grupo_financiero = '   + convert(varchar(10),@grupo_financiero)
+
+if @concepto !=0   --is not null   
+   set @sql = @sql + ' and h.concepto = '   + convert(varchar(10),@concepto)
+
+--if @inicio is not null and @fin is not null
+--   set @sql = @sql + 'and h.fecha_desde between '  + @inicio +  '  and 	 ' + @fin   
+set @sql = @sql + ' order by h.nombre'
+
+exec(@sql) 
+
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spSelUsuarios]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+ 
+ CREATE  proc [dbo].[spSelUsuarios]
+ @UserId     varchar(4),
+ @UserClave  varchar(20)
+ as
+ /*
+ Proposito> Validar los usuarios que usan el sistema
+ Fecha>  Diciembre 2015
+ 
+ select * from [ssmusuar] 
+ exec spSelUsuarios 'goa','123456'
+ */ 
+ 
+ declare @msg int=0
+ 
+ if (select COUNT(*) from [ssmusuar]  u where  u.usua_id = @UserId and  u.usua_clave = @UserClave) > 0
+     select @msg= 1
+
+select  @msg as msg      
+ 
+   
+
+
+
+
+GO
+
+/****** Object:  StoredProcedure [dbo].[spUpdHistorico_Nuevo]    Script Date: 12/18/2015 11:42:27 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+CREATE proc [dbo].[spUpdHistorico_Nuevo]
+@empleado numeric(5,0),
+@concepto smallint  ,
+@grupo_financiero numeric(2,0)=1,
+@empresa numeric(3,0)=6,
+
+	@tipo_planilla  smallint=NULL,
+	@tipo_cierre smallint=NULL,
+	@origen varchar(1)=NULL,
+	@linea numeric(18,0)=NULL,
+	@nombre varchar(63)=NULL,
+	@descripcion_concepto varchar(60)=NULL,
+	@horas_trabajadas numeric(7,2)=NULL,
+	@monto_bruto numeric(38,2)=NULL,
+	@monto_descontado numeric(7,2)=NULL,
+	@monto_bruto_pagar numeric(38,2)=NULL,
+	@imprenta numeric(7,2)=NULL,
+	@segeducativo numeric(7,2)=NULL,
+	@segsocial numeric(7,2)=NULL,
+	@acreedores numeric(7,2)=NULL,
+	@Neto numeric(10,2)=NULL,
+	@fecha_desde datetime=NULL,
+	@fecha_hasta datetime=NULL,
+	@estado varchar(2)=NULL,
+	@descripcion_estado varchar(60)=NULL,
+	@salario_mensual numeric(9,2)=NULL,
+	@rata_por_hora numeric(6,3)=NULL,
+	@jornada_semanal decimal(5,2)=NULL,
+	@horas_por_dia decimal(10,2)=NULL
+as
+
+/******************************
+Propósito:  Actualizar  los registros FLAG=2
+Dic 4.2015
+
+exec spUpdHistorico_Nuevo 385,1
+
+no editable: la fecha de inicio
+conceptos:
+1  Salario Ordinario
+68  XIII
+*******************************/
+--set nocount on
+--select e.empl_fecha_ingreso, CONVERT(varchar(10),e.empl_fecha_ingreso,111)    	from plmemple e  where e.empl_fecha_ingreso is null
+Declare @cant smallint=0 
+  select @cant = (
+		select   COUNT(1)  from HISTORICO_NUEVO h where h.FLAG= 2
+		and h.grupo_financiero=@grupo_financiero and h.empresa = @empresa and h.empleado = @empleado and h.concepto = @concepto
+		group by h.grupo_financiero,h.empresa,h.empleado, h.concepto having COUNT(1)= 1  ) 
+
+if @cant = 1
+select 'ok' as msg
+else
+select  'fail' as msg
+
+UPDATE [OutSourcing].[dbo].[HISTORICO_NUEVO]
+   SET -- [grupo_financiero] = <grupo_financiero, numeric(2,0),>
+       --,[empresa] = <empresa, numeric(3,0),>
+       --,[empleado] = <empleado, numeric(5,0),>
+       [tipo_planilla] = @tipo_planilla
+      ,[tipo_cierre] = @tipo_cierre  
+      ,[origen] = @origen  
+      ,[linea] = @linea  
+      ,[nombre] = @nombre   
+      --,[concepto] = @concepto smallint=NULL,
+      ,[descripcion_concepto] = @descripcion_concepto
+      ,[horas_trabajadas] = @horas_trabajadas   
+      ,[monto_bruto] = @monto_bruto  
+      ,[monto_descontado] = @monto_descontado 
+      ,[monto_bruto_pagar] = @monto_bruto_pagar
+      ,[imprenta] = @imprenta
+      ,[segeducativo] = @segeducativo
+      ,[segsocial] = @segsocial
+      ,[acreedores] = @acreedores
+      ,[Neto] = @Neto 
+      ,[fecha_desde] = @fecha_desde
+      ,[fecha_hasta] = @fecha_hasta
+      ,[estado] = @estado 
+      ,[descripcion_estado] = @descripcion_estado
+      ,[salario_mensual] = @salario_mensual
+      ,[rata_por_hora] = @rata_por_hora
+      ,[jornada_semanal] = @jornada_semanal
+      ,[horas_por_dia] = @horas_por_dia
+      --,[FLAG] = <FLAG varchar(1),>
+ WHERE 
+   grupo_financiero=@grupo_financiero and  empresa = @empresa and  empleado = @empleado and  concepto = @concepto
+    
+
+
+
+
+GO
+
+
