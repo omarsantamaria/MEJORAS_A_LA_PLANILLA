@@ -1,0 +1,155 @@
+USE [OutSourcing]
+GO
+
+/****** Object:  Trigger [tr_del_plccomic]    Script Date: 12/17/2015 14:18:40 ******/
+IF  EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'[dbo].[tr_del_plccomic]'))
+DROP TRIGGER [dbo].[tr_del_plccomic]
+GO
+
+/****** Object:  Trigger [tr_ins_plccomic]    Script Date: 12/17/2015 14:18:40 ******/
+IF  EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'[dbo].[tr_ins_plccomic]'))
+DROP TRIGGER [dbo].[tr_ins_plccomic]
+GO
+
+USE [OutSourcing]
+GO
+
+/****** Object:  Trigger [dbo].[tr_del_plccomic]    Script Date: 12/17/2015 14:18:40 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+  CREATE TRIGGER [dbo].[tr_del_plccomic]
+  ON [dbo].[plccomic]
+  FOR DELETE
+  AS
+ /****************************************************
+ PROPOSITO:  
+ Eliminar   el registro de planilla ciere en el HISTORICO_NUEVO 
+ 
+ 
+ *****************************************************/
+ set nocount on
+ /***************************************************
+ NO SE HA PROBADO- NOV 24.2015 	 
+eliminar la linea de return para hacer las pruebas
+**************************************************/
+return 
+	delete HISTORICO_NUEVO from  deleted t 
+where    HISTORICO_NUEVO.flag = 1
+and t.ccom_g_financiero  = HISTORICO_NUEVO.grupo_financiero
+and t.ccom_empresa       = HISTORICO_NUEVO.empresa
+and t.ccom_empleado      = HISTORICO_NUEVO.empleado
+and t.ccom_tipo_planilla = HISTORICO_NUEVO.tipo_planilla
+and t.ccom_origen        = HISTORICO_NUEVO.origen
+and t.ccom_concepto      = HISTORICO_NUEVO.concepto
+and t.ccom_fecha_hasta   = HISTORICO_NUEVO.fecha_hasta
+ 
+ 
+
+
+
+GO
+
+/****** Object:  Trigger [dbo].[tr_ins_plccomic]    Script Date: 12/17/2015 14:18:40 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+  CREATE TRIGGER [dbo].[tr_ins_plccomic]
+  ON [dbo].[plccomic]
+  FOR INSERT
+  AS
+ /****************************************************
+ PROPOSITO:  
+ Crear   el registro de planilla actual en el HISTORICO_NUEVO 
+ *****************************************************/
+ /***************************************************
+ NO SE HA PROBADO- NOV 24.2015 	 
+eliminar la linea de return para hacer las pruebas
+**************************************************/
+return  
+  
+  DECLARE @LINEA numeric(18,0)=0  
+ 
+ SELECT @LINEA =    MAX(linea) from historico_nuevo  
+
+ insert into HISTORICO_NUEVO
+ SELECT  
+ plccomic.ccom_g_financiero  as grupo_financiero,
+ plccomic.ccom_empresa       as empresa, 
+ plccomic.ccom_empleado      as empleado,
+ plccomic.ccom_tipo_planilla as tipo_planilla,
+ '0'                         as tipo_cierre,  -- 
+ plccomic.ccom_origen        as origen,
+  
+ @LINEA + ROW_NUMBER() OVER(ORDER BY plccomic.ccom_empleado DESC)  as linea,  --plccomic.ccom_linea
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         plccomic.ccom_concepto         as concepto,   --plccomic.ccom_concepto
+         placopag.copa_descripcion      as descripcion_concepto,   
+         plccomic.ccom_horas_ordinarias as horas_trabajadas,   --plccomic.ccom_horas_ordinarias   select * from plccomi  sp_helptext spInsSalariosPlanillaActual 65
+         plccomic.ccom_monto_bruto      as monto_bruto,
+         0                              as monto_descontado,  --revisar
+         plccomic.ccom_monto_bruto      as monto_bruto_pagar, --revisar
+         plccomic.ccom_imp_renta        as imprenta,          --revisar segeducativo
+         plccomic.ccom_seguro_educa     as segeducativo,      --revisar 
+         plccomic.ccom_seguro_social    as segsocial,         --revisar
+          0                             as acreedores,        --revisar
+         plccomic.ccom_monto_neto       as Neto,    
+        --case when ccom_concepto = 1 then ccom_mto_ordinario - isnull( ( SELECT sum( pc102.ccom_monto_bruto  )
+   -- FROM plccomi pc102 
+   --WHERE ( pc102.ccom_g_financiero = plmemple.empl_g_financiero ) and  
+   --      ( pc102.ccom_empresa = plmemple.empl_empresa ) and  
+   --      ( pc102.ccom_empleado = plmemple.empl_empleado ) and  
+   --      ( pc102.ccom_concepto = 102 ) ),0)   else ( case when ccom_concepto = 102 then ccom_monto_bruto else ccom_monto_bruto end) end as monto_bruto,   
+         --case when ccom_concepto = 1 then - isnull( ccom_sueldo_base_descontado,0) else 0  end as monto_descontado ,
+   --      case when ccom_concepto = 1 then ccom_mto_ordinario  - isnull( ( SELECT sum( pc102.ccom_monto_bruto  )
+   -- FROM plccomi pc102 
+   --WHERE ( pc102.ccom_g_financiero = plmemple.empl_g_financiero ) and  
+   --      ( pc102.ccom_empresa = plmemple.empl_empresa ) and  
+   --      ( pc102.ccom_empleado = plmemple.empl_empleado ) and  
+   --      ( pc102.ccom_concepto = 102 ) ),0)    - isnull( ccom_sueldo_base_descontado,0) else ( case when ccom_concepto = 102 then ccom_monto_bruto else ccom_monto_bruto end)   end as monto_bruto_pagar,   
+         --case when ccom_concepto = 1 then -  ccom_imp_renta    else  0 end as imprenta,   
+         --case when ccom_concepto = 1 then - ccom_seguro_educa  else  0 end as segeducativo,   
+         --case when ccom_concepto = 1 then - ccom_seguro_social else  0 end as segsocial,   
+         --case when ccom_concepto = 1 then - ccom_otras_deducc  else  0 end as acreedores,   
+         --case when ccom_concepto = 1 then  ccom_monto_neto     else  0 end as Neto,   
+
+         plccomic.ccom_fecha_desde as fecha_desde,   
+         plccomic.ccom_fecha_hasta as fecha_hasta,   
+
+         plaestad.esta_estado        as estado,   
+         plaestad.esta_descripcion   as descripcion_estado,   
+         plmemple.empl_salario       as salario_mensual,   
+         plmemple.empl_rata_hora     as rata_por_hora,   
+         plmemple.empl_jornada       as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia 
+         ,'0' as FLAG
+    FROM inserted plccomic,
+         --plccomic,   
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( plccomic.ccom_g_financiero = placopag.copa_g_financiero ) and  
+         ( plccomic.ccom_empresa = placopag.copa_empresa ) and  
+         ( plccomic.ccom_empleado = plmemple.empl_empleado ) and  
+         ( plccomic.ccom_tipo_planilla = plmemple.empl_tipo_planilla ) and  
+         ( plccomic.ccom_concepto = placopag.copa_concepto_pago ) and  
+         ( plccomic.ccom_empresa = plmemple.empl_empresa ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) and  
+         ( --( plccomic.ccom_linea = @linea  ) AND  
+         ( plmemple.empl_estado not in ('2','4') ) )   
+ORDER BY plccomic.ccom_g_financiero ASC,   
+         plccomic.ccom_empresa ASC,   
+         plccomic.ccom_empleado ASC,   
+         plccomic.ccom_concepto ASC
+ 
+
+GO
+
+
