@@ -1,0 +1,104 @@
+/*
+HISTORICO DE EMPLEADOS
+BASE PARA GENERAR LA NUEVA TABLA> HISTORICO_NUEVO  FLAG= 1
+
+select * from historico_nuevo where flag = 1 --29416
+delete from  historico_nuevo where flag = 1
+*/
+
+-- 1. crear la HISTORICO_NUEVO con los registros de plcierre
+insert into HISTORICO_NUEVO 
+SELECT     
+ plcierre.cierre_g_financiero  as grupo_financiero,--
+ plcierre.cierre_empresa       as empresa, --
+ plcierre.cierre_empleado      as empleado,
+ plcierre.cierre_tipo_plani    as tipo_planilla,
+ plcierre.cierre_tipo_cierre   as tipo_cierre,
+ '0'                           as origen,
+ plcierre.cierre_linea         as linea,
+ 
+         isnull(empl_nombre1,'') + ' ' + isnull(empl_nombre2,'') + ' ' + isnull(empl_apellido_paterno,'') + ' ' + isnull(empl_apellido_materno,'')  as nombre,   
+         plcierre.cierre_concepto_apli as concepto,   
+         placopag.copa_descripcion     as descripcion_concepto,   
+         plcierre.cierre_horas_ordi    as horas_trabajadas,   
+          case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(SELECT  sum(  c102.cierre_monto_bruto )
+    FROM        plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and  
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  )              
+),0))
+   else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end) end as monto_bruto,   
+         case when plcierre.cierre_concepto_apli = 1 then - isnull( cierre_mto_descontado,0) else 0  end         as monto_descontado ,
+         case when plcierre.cierre_concepto_apli = 1 then cierre_mto_ordinario  - ( isnull(
+(
+SELECT  sum(  
+         c102.cierre_monto_bruto )
+    FROM  
+         plcierre c102
+   WHERE  
+         ( plmemple.empl_g_financiero = c102.cierre_g_financiero ) and  
+         ( plmemple.empl_empresa = c102.cierre_empresa ) and  
+         ( plmemple.empl_empleado = c102.cierre_empleado ) and 
+         ( ( c102.cierre_fecha_desde = plcierre.cierre_fecha_desde  AND  
+         c102.cierre_fecha_hasta = plcierre.cierre_fecha_hasta AND  
+         c102.cierre_concepto_apli = 102 )  ) 
+),0))
+ - isnull( cierre_mto_descontado,0) else ( case when plcierre.cierre_concepto_apli = 102 then cierre_monto_bruto else cierre_monto_bruto end)   end as monto_bruto_pagar,   
+         case when plcierre.cierre_concepto_apli in ( 1,71) or cierre_tipo_cierre != 1  then -  cierre_imp_renta else  0 end as imprenta,   
+
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_educativo else  0 end as segeducativo,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_seg_social    else  0 end as segsocial,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then - cierre_otras_deducc  else  0 end as acreedores,   
+         case when plcierre.cierre_concepto_apli  in ( 1,71) or cierre_tipo_cierre != 1  then   cierre_neto_paga     else  0 end as Neto,   
+         plcierre.cierre_fecha_desde as  fecha_desde,   
+         plcierre.cierre_fecha_hasta as  fecha_hasta,   
+         plaestad.esta_estado        as  estado,   
+         plaestad.esta_descripcion   as  descripcion_estado,   
+         plmemple.empl_salario       as  salario_mensual,   
+         plmemple.empl_rata_hora     as rata_por_hora,   
+         plmemple.empl_jornada       as jornada_semanal,   
+         plmemple.empl_horas_diarias as horas_por_dia,
+         '1'                         as FLAG     ---columna control  FLAG=1 indica que son de planillas cerradas
+
+--    INTO HISTORICO_NUEVO --  
+    FROM plcierre,    
+         placopag,   
+         plmemple,   
+         plaestad  
+   WHERE ( plcierre.cierre_g_financiero = placopag.copa_g_financiero ) and  
+         ( plcierre.cierre_empresa = placopag.copa_empresa ) and  
+         ( plcierre.cierre_concepto_apli = placopag.copa_concepto_pago ) and  
+         ( plcierre.cierre_g_financiero = plmemple.empl_g_financiero ) and  
+         ( plcierre.cierre_empresa = plmemple.empl_empresa ) and  
+         ( plcierre.cierre_empleado = plmemple.empl_empleado ) and  
+         ( plmemple.empl_estado = plaestad.esta_estado ) --and   ( ( plcierre.cierre_empresa = @Empresa )
+    AND  ( plmemple.empl_estado not in ('2','4') --) 
+
+)    --and 
+
+ --plcierre.cierre_fecha_hasta between @FechaInicial and @FechaFinal
+       --   plcierre.cierre_fecha_hasta >= '2015/01/01'
+ORDER BY plcierre.cierre_g_financiero ASC,   
+         plcierre.cierre_empresa ASC,   
+         plcierre.cierre_empleado ASC,   		 
+         cierre_fecha_hasta asc ,
+			cierre_tipo_cierre asc, 
+			cierre_fecha_desde asc ,
+         plcierre.cierre_concepto_apli ASC   
+; 
+/*
+
+select flag, * from historico_nuevo where flag = 0
+--agregar planilla corriente--
+ejecutar estas sentencias por cada empresa.  estos registros se crearan con FLAG = 0  o sea Planilla abierta.  
+
+ insert into HISTORICO_NUEVO 
+ exec spRepSalariosPlanillaActualBK   11 --3,6,9,10,11
+ 
+*/
+ 
