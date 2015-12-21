@@ -1,0 +1,144 @@
+USE [OutSourcing]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[fnCalcularRenta]    Script Date: 12/17/2015 14:14:21 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[fnCalcularRenta]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [dbo].[fnCalcularRenta]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[fnDateDiff360]    Script Date: 12/17/2015 14:14:21 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[fnDateDiff360]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [dbo].[fnDateDiff360]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[fnNombreCompleto]    Script Date: 12/17/2015 14:14:21 ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[fnNombreCompleto]') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
+DROP FUNCTION [dbo].[fnNombreCompleto]
+GO
+
+USE [OutSourcing]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[fnCalcularRenta]    Script Date: 12/17/2015 14:14:21 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+create FUNCTION [dbo].[fnCalcularRenta](@SALARIO_ANUALIZADO  NUMERIC(18,2), @P1 NUMERIC(5,2),@P2 NUMERIC(5,2) )
+RETURNS NUMERIC(18,2)
+AS 
+/*
+Propósito  :  Calcular la renta
+Fecha      :  Noviembre 2015
+Instalación: Dchain
+Parámetros :
+@SALARIO_ANUALIZADO  = total de salario ganado en el año
+@P1 =  Porcentaje aplicado cuando el ingreso es menor o igual a 11 K
+@P2 =  Porcentaje aplicado cuando el ingreso es mayor a 50 K
+
+select  dbo.fnCalcularRenta( 13989.59,15,25)
+*/
+BEGIN
+Declare @RENTA_ANUAL NUMERIC(18,2)
+if @P1 > 1 set @P1 = @P1 /100
+if @P2 > 1 set @P2 = @P2 /100
+ 
+SELECT  @RENTA_ANUAL  = -1 * (  CASE
+							WHEN  isnull(@SALARIO_ANUALIZADO,0)  < 11000 then 0
+							WHEN  isnull(@SALARIO_ANUALIZADO,0)  >= 11000 and    isnull(@SALARIO_ANUALIZADO,0)  < 50000 then   
+							     (isnull(@SALARIO_ANUALIZADO,0)  - 11000)  *@P1   --* 0.15 
+							WHEN (isnull(@SALARIO_ANUALIZADO,0)) >= 50000 then    5850 + ((isnull(@SALARIO_ANUALIZADO,0) - 50000) * @P2 )--* 0.25) 
+                          END )
+      
+    RETURN @RENTA_ANUAL;
+    
+END;
+
+
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[fnDateDiff360]    Script Date: 12/17/2015 14:14:21 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE FUNCTION [dbo].[fnDateDiff360](@FECHA_INICIAL  DATE, @FECHA_FINAL DATE )
+RETURNS  numeric(18,2) 
+AS 
+/*
+Propósito  :  Calcular la cantidad de días entre dos fechas en base a un año de 360 dias
+Fecha      :  Noviembre 2015
+Instalación: Dchain
+Parámetros :
+@FECHA_INICIAL = fecha inicial de interés (yyyy-mm-dd) 
+@@FECHA_FINAL  = fecha final de interés    (yyyy-mm-dd)
+ 
+select  dbo.fnDateDiff360('2015-01-01','2015-11-18' )
+
+select  dbo.fnDateDiff360('2015-11-18','2015-01-01' )
+*/
+BEGIN
+Declare @DIAS  numeric(18,2)  =0
+
+select @DIAS = ABS( DATEDIFF(MONTH, @FECHA_INICIAL, @FECHA_FINAL) * 30 + DAY(@FECHA_FINAL) - DAY(@FECHA_INICIAL))
+
+RETURN @DIAS;
+    
+END;
+
+
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[fnNombreCompleto]    Script Date: 12/17/2015 14:14:21 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE FUNCTION [dbo].[fnNombreCompleto](@EMPRESA  INT, @EMPLEADO INT )
+RETURNS  varchar(500) 
+AS 
+/*
+Propósito  :  Retornar el nombre completo del empleado
+Fecha      :  Diciembre 2015
+Instalación: Dchain
+Parámetros :
+@EMPRESA   = codigo de la empresa
+@EMPLEADO  = numero de empleado
+ 
+select  dbo.[fnNombreCompleto](6,145 )
+
+select  dbo.[fnNombreCompleto](6,800 )
+ 
+*/
+BEGIN
+Declare @Nombre  varchar(500) =''
+
+   
+select @Nombre = (   select     
+isnull(empl_nombre1,'') + ' ' + 
+isnull(empl_nombre2,'') +  '  ' + 
+isnull(empl_apellido_paterno,'') + ' ' + 
+isnull(empl_apellido_materno,'')    from plmemple 
+where empl_empresa = @EMPRESA and empl_empleado = @EMPLEADO)
+ 
+  if @Nombre is null set @Nombre = 'NO EXISTE EN ARCHIVOS'
+RETURN @Nombre;
+    
+END;
+
+
+GO
+
+
